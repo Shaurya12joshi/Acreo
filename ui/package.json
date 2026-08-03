@@ -1,5 +1,5 @@
 {
-  "name": "rental-finder-ui",
+  "name": "Acreo",
   "private": true,
   "scripts": {
     "build:css": "tailwindcss -i ./src/input.css -o ./output.css --minify",

@@ -48,7 +48,7 @@ function scrapeNewListings() {
     seenCardIds.add(cardEl.id);
 
     const data = extractListingData(cardEl);
-    if (data) freshResults.push(data); // null means "skipped, not a rental card"
+    if (data) freshResults.push(data);
   });
 
   if (freshResults.length > 0) {
