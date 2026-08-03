@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Rental Finder",
+  "name": "Acreo",
   "version": "0.1.0",
   "description": "Collects rental listings from multiple sites into one view.",
   "permissions": ["storage"],
