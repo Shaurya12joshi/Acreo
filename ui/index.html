@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rental Finder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="output.css" />
+</head>
+<body class="bg-cream text-ink font-body min-h-screen">
+
+  <header class="border-b border-sand bg-surface">
+    <div class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div>
+        <h1 class="font-display text-2xl font-semibold text-ink">Rental Finder</h1>
+        <p id="listing-count" class="text-sm text-muted mt-0.5">0 listings collected</p>
+      </div>
+      <button
+        id="clear-btn"
+        class="text-sm text-muted hover:text-amber border border-sand hover:border-amber rounded-full px-4 py-2 transition-colors"
+      >
+        Clear all
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-8">
+
+    <div id="filters" class="hidden mb-6 flex flex-wrap items-center gap-x-8 gap-y-4">
+      <div id="bhk-filters" class="flex items-center gap-2 flex-wrap"></div>
+      <div id="furnishing-filters" class="flex items-center gap-2 flex-wrap"></div>
+      <div id="tenant-filters" class="flex items-center gap-2 flex-wrap"></div>
+      <button id="reset-filters-btn" class="text-xs text-muted hover:text-amber underline">
+        Reset filters
+      </button>
+    </div>
+
+    <div id="empty-state" class="hidden text-center py-24">
+      <p class="font-display text-xl text-ink mb-2">No listings yet</p>
+      <p class="text-muted text-sm">
+        Browse rental search results on MagicBricks listings you scroll past will appear here automatically.
+      </p>
+    </div>
+
+    <div id="table-wrapper" class="hidden bg-surface border border-sand rounded-2xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-sand text-left text-muted">
+              <th class="px-5 py-3 font-medium">Title</th>
+              <th class="px-5 py-3 font-medium">Price</th>
+              <th class="px-5 py-3 font-medium">Furnishing</th>
+              <th class="px-5 py-3 font-medium">Bathroom</th>
+              <th class="px-5 py-3 font-medium">Tenant</th>
+              <th class="px-5 py-3 font-medium">Carpet Area</th>
+              <th class="px-5 py-3 font-medium">Floor</th>
+              <th class="px-5 py-3 font-medium">Source</th>
+              <th class="px-5 py-3 font-medium"></th>
+            </tr>
+          </thead>
+          <tbody id="listings-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #faf7f1;
+  --color-surface: #ffffff;
+  --color-sand: #e6ddce;
+  --color-ink: #2a2620;
+  --color-muted: #8a7f70;
+  --color-teal: #2f6e6b;
+  --color-teal-soft: #e3efee;
+  --color-amber: #c1682f;
+  --color-amber-soft: #f5e6d8;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}

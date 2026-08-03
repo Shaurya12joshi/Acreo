@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Rental Finder",
+  "version": "0.1.0",
+  "description": "Collects rental listings from multiple sites into one view.",
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "action": {
+    "default_title": "Open Rental Finder"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.magicbricks.com/*"],
+      "js": ["content-scripts/magicbricks.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["*://*.99acres.com/*"],
+      "js": ["content-scripts/99acres.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
