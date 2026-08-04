@@ -106,7 +106,7 @@ function render(listings) {
     emptyState.classList.remove("hidden");
     emptyState.innerHTML = listings.length === 0
       ? `<p class="font-display text-xl text-ink mb-2">No listings yet</p>
-         <p class="text-muted text-sm">Browse rental search results on MagicBricks — listings you scroll past will appear here automatically.</p>`
+         <p class="text-muted text-sm">Browse rental search results on MagicBricks, 99Acres or NoBroker listings you scroll past will appear here automatically.</p>`
       : `<p class="font-display text-xl text-ink mb-2">No matches</p>
          <p class="text-muted text-sm">Nothing matches the current filters. Try resetting them.</p>`;
     return;
