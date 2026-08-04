@@ -9,6 +9,13 @@ function extractSummaryFields(cardEl) {
   return fields;
 }
 
+function detectListingType(title) {
+  const t = title?.toLowerCase() || "";
+  if (t.includes("rent")) return "rent";
+  if (t.includes("sale") || t.includes("resale")) return "sale";
+  return "unknown";
+}
+
 function extractListingData(cardEl) {
   const listWrapper = cardEl.closest('[id^="cardid"]');
   const id = listWrapper?.id;
@@ -19,6 +26,7 @@ function extractListingData(cardEl) {
   return {
     id,
     title,
+    listingType: detectListingType(title),
     priceAmount,
     priceLabel,
     link: buildPropertyUrl(cardEl),
@@ -26,7 +34,6 @@ function extractListingData(cardEl) {
     source: "magicbricks",
   };
 }
-
 const seenCardIds = new Set();
 
 function scrapeNewListings() {
@@ -51,7 +58,7 @@ function startObserving() {
   const observer = new MutationObserver(scrapeNewListings);
   observer.observe(document.body, { childList: true, subtree: true });
 
-  scrapeNewListings(); 
+  scrapeNewListings();
 }
 
 startObserving();

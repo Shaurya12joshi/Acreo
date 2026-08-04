@@ -10,29 +10,45 @@ function extractAreaWrapFields(cardEl) {
   });
 }
 
+function detectListingType(title) {
+  const t = title?.toLowerCase() || "";
+  if (t.includes("rent")) return "rent";
+  return "sale";
+}
+
 function extractListingData(cardEl) {
   const id = cardEl.id;
   const heading = cardEl.querySelector(".tupleNew__propType")?.textContent.trim();
-
-  if (!heading || !heading.toLowerCase().includes("for rent")) return null;
+  if (!heading) return null;
 
   const link = cardEl.querySelector("a.tupleNew__propertyHeading")?.getAttribute("href");
   const priceAmount = cardEl.querySelector(".tupleNew__priceValWrap span")?.textContent.trim();
   const priceSubLine = cardEl.querySelector(".tupleNew__priceAndPerSqftWrap .tupleNew__perSqftWrap.ellipsis")?.textContent.trim();
 
+  if (priceAmount?.includes(" - ")) return null;
+
   const details = extractAreaWrapFields(cardEl);
   const carpetArea = details[0]?.value;
   const bathroomEntry = details.find((d) => d.label?.toLowerCase().includes("bath"));
   const bathroom = bathroomEntry?.label?.replace(/baths?/i, "").trim();
+  const statusEntry = details.find((d) => /ready|construction/i.test(d.label || ""));
+  const status = statusEntry?.label;
+
+  const floor = cardEl.querySelector(".tupleNew__unitHighlightTxt")?.textContent.trim();
+  const furnishing = cardEl.querySelector(".tupleNew__furnished")?.textContent.trim();
 
   return {
     id,
     title: heading,
+    listingType: detectListingType(heading),
     priceAmount,
     priceSubLine, 
     link,
-    "carpet-area": carpetArea, 
+    "carpet-area": carpetArea,
     bathroom,
+    floor, 
+    furnishing,
+    status,
     source: "99acres",
   };
 }

@@ -12,6 +12,7 @@ async function saveListings(newListings) {
 
   await chrome.storage.local.set({ listings: Array.from(byId.values()) });
 }
+
 chrome.action.onClicked.addListener(() => {
   chrome.tabs.create({ url: chrome.runtime.getURL("ui/index.html") });
 });
