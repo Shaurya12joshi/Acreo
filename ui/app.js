@@ -9,7 +9,6 @@ const bhkFiltersEl = document.getElementById("bhk-filters");
 const furnishingFiltersEl = document.getElementById("furnishing-filters");
 const tenantFiltersEl = document.getElementById("tenant-filters");
 const resetFiltersBtn = document.getElementById("reset-filters-btn");
-
 let allListings = [];
 const activeFilters = { source: null, bhk: null, furnishing: null, tenant: null };
 
@@ -30,10 +29,10 @@ function getBhk(listing) {
 function normalizeFurnishing(raw) {
   if (!raw) return null;
   const v = raw.toLowerCase();
-  if (v.includes("unfurnished")) return "Unfurnished"; 
+  if (v.includes("unfurnished")) return "Unfurnished";
   if (v.includes("semi")) return "Semi-Furnished";
   if (v.includes("furnished")) return "Furnished";
-  return null; 
+  return null;
 }
 
 function normalizeTenant(raw) {
@@ -44,7 +43,7 @@ function normalizeTenant(raw) {
   if (hasBachelor && hasFamily) return "Bachelors/Family";
   if (hasBachelor) return "Bachelors";
   if (hasFamily) return "Family";
-  if (v.includes("all")) return "Bachelors/Family"; 
+  if (v.includes("all")) return "Bachelors/Family";
   return null;
 }
 
@@ -106,7 +105,7 @@ function render(listings) {
     emptyState.classList.remove("hidden");
     emptyState.innerHTML = listings.length === 0
       ? `<p class="font-display text-xl text-ink mb-2">No listings yet</p>
-         <p class="text-muted text-sm">Browse rental search results on MagicBricks, 99Acres or NoBroker listings you scroll past will appear here automatically.</p>`
+         <p class="text-muted text-sm">Browse rental search results on MagicBricks — listings you scroll past will appear here automatically.</p>`
       : `<p class="font-display text-xl text-ink mb-2">No matches</p>
          <p class="text-muted text-sm">Nothing matches the current filters. Try resetting them.</p>`;
     return;
@@ -114,7 +113,7 @@ function render(listings) {
   emptyState.classList.add("hidden");
   tableWrapper.classList.remove("hidden");
 
-  tableBody.innerHTML = ""; 
+  tableBody.innerHTML = "";
   filtered.forEach((listing) => tableBody.appendChild(buildRow(listing)));
 }
 
@@ -130,7 +129,7 @@ function buildRow(listing) {
   tr.appendChild(cell(listing.title, "font-medium text-ink"));
   tr.appendChild(priceCell(listing));
   tr.appendChild(furnishingStatusCell(listing));
-  tr.appendChild(cell(listing.bathroom));
+  tr.appendChild(detailCell(listing, listing.bathroom));
   tr.appendChild(
     detailCell(listing, listing["tenent-preffered"], normalizeTenant(listing["tenent-preffered"]) || listing["tenent-preffered"])
   );
@@ -162,18 +161,52 @@ function findValueNearLabel(doc, labelText) {
   return null;
 }
 
-async function fetchDetailFields(url) {
-  const response = await fetch(url);
+function parseNoBrokerDetail(doc) {
+  const boxes = doc.querySelectorAll(".nb__3ocPe");
+  const fields = {};
+  boxes.forEach((box) => {
+    const label = box.querySelector("#overviewTitle")?.textContent.trim();
+    const value = box.querySelector(".font-semi-bold")?.textContent.trim();
+    if (label && value) fields[label] = value;
+  });
+  return {
+    furnishing: fields["Furnishing Status"],
+    floor: fields["No. of Floors"],
+    bathroom: fields["Bathroom"],
+  };
+}
+
+function parse99acresDetail(doc) {
+  return {
+    furnishing: doc.querySelector("#furnishingLabel")?.textContent.trim(),
+    floor: doc.querySelector("#floorNumLabel")?.textContent.trim(),
+    tenant: doc.querySelector("#availableForLabel")?.textContent.trim(),
+  };
+}
+
+async function fetchDetailFields(listing) {
+  const response = await fetch(listing.link);
   const html = await response.text();
   const doc = new DOMParser().parseFromString(html, "text/html");
 
+  if (listing.source === "99acres") {
+    const parsed = parse99acresDetail(doc);
+    return {
+      furnishing: parsed.furnishing || findValueNearLabel(doc, "Furnishing"),
+      floor: parsed.floor || findValueNearLabel(doc, "Floor"),
+      tenant: parsed.tenant || findValueNearLabel(doc, "Available For"),
+      bathroom: null,
+    };
+  }
+  if (listing.source === "nobroker") {
+    const parsed = parseNoBrokerDetail(doc);
+    return { furnishing: parsed.furnishing, floor: parsed.floor, bathroom: parsed.bathroom, tenant: null };
+  }
   return {
-
-    furnishing:
-      doc.querySelector("#furnishingLabel")?.textContent.trim() || findValueNearLabel(doc, "Furnishing"),
-    floor: doc.querySelector("#floorNumLabel")?.textContent.trim() || findValueNearLabel(doc, "Floor"),
-    tenant:
-      doc.querySelector("#availableForLabel")?.textContent.trim() || findValueNearLabel(doc, "Available For"),
+    furnishing: findValueNearLabel(doc, "Furnishing"),
+    floor: findValueNearLabel(doc, "Floor"),
+    tenant: findValueNearLabel(doc, "Available For") || findValueNearLabel(doc, "Tenant Preferred"),
+    bathroom: null,
   };
 }
 
@@ -191,11 +224,12 @@ function makeLoadDetailsButton(listing) {
     btn.textContent = "Loading…";
     btn.disabled = true;
     try {
-      const details = await fetchDetailFields(listing.link);
+      const details = await fetchDetailFields(listing);
       await persistListing({
         ...listing,
         furnishing: details.furnishing || listing.furnishing || "Not found",
         floor: details.floor || listing.floor || "Not found",
+        bathroom: details.bathroom || listing.bathroom || "Not found",
         "tenent-preffered": details.tenant || listing["tenent-preffered"] || "Not found",
       });
     } catch (err) {
@@ -205,6 +239,7 @@ function makeLoadDetailsButton(listing) {
   });
   return btn;
 }
+
 function detailCell(listing, value, displayValue) {
   if (hasValue(value)) return cell(displayValue ?? value);
   if (!listing.link) return cell(null);
@@ -263,6 +298,7 @@ async function loadAndRender() {
   allListings = listings;
   renderAll();
 }
+
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes.listings) {
     allListings = changes.listings.newValue || [];

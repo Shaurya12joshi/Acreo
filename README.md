@@ -25,7 +25,7 @@ Acreo/
 ├── content-scripts/
 │   ├── magicbricks.js
 │   ├── 99acres.js
-│   └── ...
+│   └── nobroker.js
 ├── ui/
 │   ├── src/
 │   ├── index.html
@@ -75,7 +75,7 @@ chrome://extensions
 
 - JavaScript
 - HTML
-- CSS / Tailwind CSS
+- Tailwind CSS
 - Chrome Extension Manifest V3
 
 ---
