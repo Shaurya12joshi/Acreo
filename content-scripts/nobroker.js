@@ -4,6 +4,7 @@ function detectListingType(title) {
   if (t.includes("sale") || t.includes("resale")) return "sale";
   return "unknown";
 }
+
 function extractOverviewBoxes(cardEl) {
   const boxes = cardEl.querySelectorAll(".flex.flex-col.items-center");
   const fields = {};

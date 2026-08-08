@@ -9,6 +9,7 @@ const bhkFiltersEl = document.getElementById("bhk-filters");
 const furnishingFiltersEl = document.getElementById("furnishing-filters");
 const tenantFiltersEl = document.getElementById("tenant-filters");
 const resetFiltersBtn = document.getElementById("reset-filters-btn");
+
 let allListings = [];
 const activeFilters = { source: null, bhk: null, furnishing: null, tenant: null };
 
@@ -24,6 +25,15 @@ const TENANT_OPTIONS = ["Bachelors", "Family", "Bachelors/Family"].map((v) => ({
 function getBhk(listing) {
   const match = listing.title?.match(/(\d+)\s*BHK/i);
   return match ? match[1] : null;
+}
+
+function getPropertyType(listing) {
+  const t = listing.title?.toLowerCase() || "";
+  if (t.includes("villa")) return "Villa";
+  if (t.includes("plot") || t.includes("land")) return "Plot/Land";
+  if (t.includes("independent house") || t.includes(" house")) return "Independent House";
+  if (t.includes("apartment") || t.includes("flat")) return "Apartment";
+  return null;
 }
 
 function normalizeFurnishing(raw) {
@@ -70,6 +80,7 @@ function chipButton(label, isActive, onClick) {
   btn.addEventListener("click", onClick);
   return btn;
 }
+
 function renderFilterGroup(container, groupKey, options) {
   container.innerHTML = "";
   options.forEach(({ label, value }) => {
@@ -103,10 +114,11 @@ function render(listings) {
   if (filtered.length === 0) {
     tableWrapper.classList.add("hidden");
     emptyState.classList.remove("hidden");
-    emptyState.innerHTML = listings.length === 0
-      ? `<p class="font-display text-xl text-ink mb-2">No listings yet</p>
-         <p class="text-muted text-sm">Browse rental search results on MagicBricks — listings you scroll past will appear here automatically.</p>`
-      : `<p class="font-display text-xl text-ink mb-2">No matches</p>
+    emptyState.innerHTML =
+      listings.length === 0
+        ? `<p class="font-display text-xl text-ink mb-2">No listings yet</p>
+         <p class="text-muted text-sm">Browse rental search results on MagicBricks, 99acres, or NoBroker listings you scroll past will appear here automatically.</p>`
+        : `<p class="font-display text-xl text-ink mb-2">No matches</p>
          <p class="text-muted text-sm">Nothing matches the current filters. Try resetting them.</p>`;
     return;
   }
@@ -114,7 +126,7 @@ function render(listings) {
   tableWrapper.classList.remove("hidden");
 
   tableBody.innerHTML = "";
-  filtered.forEach((listing) => tableBody.appendChild(buildRow(listing)));
+  filtered.forEach((listing, index) => tableBody.appendChild(buildRow(listing, index)));
 }
 
 function renderAll() {
@@ -122,11 +134,11 @@ function renderAll() {
   render(allListings);
 }
 
-function buildRow(listing) {
+function buildRow(listing, index) {
   const tr = document.createElement("tr");
-  tr.className = "border-b border-sand last:border-0";
+  tr.className = "border-b border-sand last:border-0 odd:bg-surface even:bg-cream/40 hover:bg-teal-soft/40 transition-colors";
 
-  tr.appendChild(cell(listing.title, "font-medium text-ink"));
+  tr.appendChild(titleCell(listing));
   tr.appendChild(priceCell(listing));
   tr.appendChild(furnishingStatusCell(listing));
   tr.appendChild(detailCell(listing, listing.bathroom));
@@ -135,6 +147,8 @@ function buildRow(listing) {
   );
   tr.appendChild(cell(listing["carpet-area"] || listing["super-area"]));
   tr.appendChild(detailCell(listing, listing.floor));
+  tr.appendChild(cell(getPropertyType(listing)));
+  tr.appendChild(gatedCell(listing));
   tr.appendChild(sourceCell(listing.source));
   tr.appendChild(linkCell(listing.link));
 
@@ -143,8 +157,109 @@ function buildRow(listing) {
 
 function cell(text, extraClass = "") {
   const td = document.createElement("td");
-  td.className = `px-5 py-3 text-ink ${extraClass}`;
+  td.className = `px-3 py-3 text-ink ${extraClass}`;
   td.textContent = text || "—";
+  return td;
+}
+
+function titleCell(listing) {
+  const td = document.createElement("td");
+  td.className = "px-3 py-3 font-medium text-ink";
+  const span = document.createElement("span");
+  span.className = "line-clamp-2";
+  span.textContent = listing.title || "—";
+  if (listing.title) span.title = listing.title;
+  td.appendChild(span);
+  return td;
+}
+
+function priceCell(listing) {
+  const td = document.createElement("td");
+  td.className = "px-3 py-3";
+
+  const topRow = document.createElement("div");
+  topRow.className = "flex items-center gap-2";
+
+  const amount = document.createElement("span");
+  amount.className = "font-semibold text-ink";
+  amount.textContent = listing.priceAmount || "—";
+  topRow.appendChild(amount);
+
+  if (listing.listingType === "rent" || listing.listingType === "sale") {
+    const tag = document.createElement("span");
+    const isRent = listing.listingType === "rent";
+    tag.className = isRent
+      ? "text-[10px] font-semibold uppercase tracking-wide text-teal bg-teal-soft rounded-full px-2 py-0.5"
+      : "text-[10px] font-semibold uppercase tracking-wide text-amber bg-amber-soft rounded-full px-2 py-0.5";
+    tag.textContent = isRent ? "Rent" : "Sale";
+    topRow.appendChild(tag);
+  }
+
+  const label = document.createElement("div");
+  label.className = "text-xs text-muted mt-0.5";
+  label.textContent = listing.priceLabel || "";
+
+  td.appendChild(topRow);
+  td.appendChild(label);
+  return td;
+}
+
+function sourceCell(source) {
+  const td = document.createElement("td");
+  td.className = "px-3 py-3";
+  const badge = document.createElement("span");
+  badge.className = "inline-block text-xs font-medium rounded-full px-2.5 py-1";
+  badge.textContent = source || "unknown";
+  if (source === "magicbricks") {
+    badge.className += " bg-teal-soft text-teal";
+  } else if (source === "99acres") {
+    badge.className += " bg-teal-soft text-teal";
+  } else if (source === "nobroker") {
+    badge.className += " bg-teal-soft text-teal";
+  } else {
+    badge.className += " bg-sand text-muted";
+  }
+  td.appendChild(badge);
+  return td;
+}
+
+function gatedCell(listing) {
+  const value = listing.gated;
+  if (!hasValue(value)) {
+    if (!listing.link) return cell(null);
+    const td = document.createElement("td");
+    td.className = "px-3 py-3";
+    td.appendChild(makeLoadDetailsButton(listing));
+    return td;
+  }
+
+  const td = document.createElement("td");
+  td.className = "px-3 py-3";
+  const isYes = value.toLowerCase().includes("yes");
+  const badge = document.createElement("span");
+  badge.textContent = value;
+  if (isYes) {
+    badge.className = "inline-block text-xs font-medium rounded-full px-2.5 py-1";
+    badge.style.backgroundColor = "#e3efe5";
+    badge.style.color = "#3f7a4f";
+  } else {
+    badge.className = "inline-block bg-cream text-muted text-xs font-medium rounded-full px-2.5 py-1 border border-sand";
+  }
+  td.appendChild(badge);
+  return td;
+}
+
+function linkCell(link) {
+  const td = document.createElement("td");
+  td.className = "px-3 py-3 text-right";
+  if (!link) return td;
+  const a = document.createElement("a");
+  a.href = link;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.className = "text-amber text-xs font-medium hover:underline";
+  a.textContent = "View";
+  td.appendChild(a);
   return td;
 }
 
@@ -173,6 +288,7 @@ function parseNoBrokerDetail(doc) {
     furnishing: fields["Furnishing Status"],
     floor: fields["No. of Floors"],
     bathroom: fields["Bathroom"],
+    gated: fields["Gated Security"],
   };
 }
 
@@ -196,17 +312,25 @@ async function fetchDetailFields(listing) {
       floor: parsed.floor || findValueNearLabel(doc, "Floor"),
       tenant: parsed.tenant || findValueNearLabel(doc, "Available For"),
       bathroom: null,
+      gated: findValueNearLabel(doc, "Gated"),
     };
   }
   if (listing.source === "nobroker") {
     const parsed = parseNoBrokerDetail(doc);
-    return { furnishing: parsed.furnishing, floor: parsed.floor, bathroom: parsed.bathroom, tenant: null };
+    return {
+      furnishing: parsed.furnishing,
+      floor: parsed.floor,
+      bathroom: parsed.bathroom,
+      gated: parsed.gated,
+      tenant: null,
+    };
   }
   return {
     furnishing: findValueNearLabel(doc, "Furnishing"),
     floor: findValueNearLabel(doc, "Floor"),
     tenant: findValueNearLabel(doc, "Available For") || findValueNearLabel(doc, "Tenant Preferred"),
     bathroom: null,
+    gated: findValueNearLabel(doc, "Gated"),
   };
 }
 
@@ -219,7 +343,8 @@ async function persistListing(updated) {
 function makeLoadDetailsButton(listing) {
   const btn = document.createElement("button");
   btn.textContent = "Load details";
-  btn.className = "text-teal text-xs font-medium hover:underline";
+  btn.className =
+    "text-teal text-xs font-medium border border-dashed border-teal/50 rounded-full px-2.5 py-1 hover:bg-teal-soft transition-colors";
   btn.addEventListener("click", async () => {
     btn.textContent = "Loading…";
     btn.disabled = true;
@@ -230,10 +355,13 @@ function makeLoadDetailsButton(listing) {
         furnishing: details.furnishing || listing.furnishing || "Not found",
         floor: details.floor || listing.floor || "Not found",
         bathroom: details.bathroom || listing.bathroom || "Not found",
+        gated: details.gated || listing.gated || "Not found",
         "tenent-preffered": details.tenant || listing["tenent-preffered"] || "Not found",
       });
     } catch (err) {
       btn.textContent = "Failed — retry?";
+      btn.className =
+        "text-amber text-xs font-medium border border-dashed border-amber/50 rounded-full px-2.5 py-1 hover:bg-amber-soft transition-colors";
       btn.disabled = false;
     }
   });
@@ -244,7 +372,7 @@ function detailCell(listing, value, displayValue) {
   if (hasValue(value)) return cell(displayValue ?? value);
   if (!listing.link) return cell(null);
   const td = document.createElement("td");
-  td.className = "px-5 py-3 text-ink";
+  td.className = "px-3 py-3 text-ink";
   td.appendChild(makeLoadDetailsButton(listing));
   return td;
 }
@@ -253,44 +381,6 @@ function furnishingStatusCell(listing) {
   if (listing.listingType === "sale") return detailCell(listing, listing.status);
   const normalized = normalizeFurnishing(listing.furnishing);
   return detailCell(listing, listing.furnishing, normalized || listing.furnishing);
-}
-
-function priceCell(listing) {
-  const td = document.createElement("td");
-  td.className = "px-5 py-3";
-  const amount = document.createElement("div");
-  amount.className = "font-medium text-ink";
-  amount.textContent = listing.priceAmount || "—";
-  const label = document.createElement("div");
-  label.className = "text-xs text-muted";
-  label.textContent = listing.priceLabel || "";
-  td.appendChild(amount);
-  td.appendChild(label);
-  return td;
-}
-
-function sourceCell(source) {
-  const td = document.createElement("td");
-  td.className = "px-5 py-3";
-  const badge = document.createElement("span");
-  badge.className = "inline-block bg-teal-soft text-teal text-xs font-medium rounded-full px-2.5 py-1";
-  badge.textContent = source || "unknown";
-  td.appendChild(badge);
-  return td;
-}
-
-function linkCell(link) {
-  const td = document.createElement("td");
-  td.className = "px-5 py-3 text-right";
-  if (!link) return td;
-  const a = document.createElement("a");
-  a.href = link;
-  a.target = "_blank";
-  a.rel = "noopener noreferrer";
-  a.className = "text-amber text-xs font-medium hover:underline";
-  a.textContent = "View";
-  td.appendChild(a);
-  return td;
 }
 
 async function loadAndRender() {

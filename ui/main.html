@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Acreo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="output.css" />
+</head>
+<body class="bg-cream text-ink font-body min-h-screen">
+
+  <header class="border-b border-sand bg-surface">
+    <div class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div>
+        <h1 class="font-display text-2xl font-semibold text-ink">Acreo</h1>
+        <p id="listing-count" class="text-sm text-muted mt-0.5">0 listings collected</p>
+      </div>
+      <button
+        id="clear-btn"
+        class="text-sm text-muted hover:text-amber border border-sand hover:border-amber rounded-full px-4 py-2 transition-colors"
+      >
+        Clear all
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-8">
+
+    <div id="filters" class="hidden mb-6 flex flex-wrap items-center gap-x-8 gap-y-4">
+      <div id="source-filters" class="flex items-center gap-2 flex-wrap"></div>
+      <div id="bhk-filters" class="flex items-center gap-2 flex-wrap"></div>
+      <div id="furnishing-filters" class="flex items-center gap-2 flex-wrap"></div>
+      <div id="tenant-filters" class="flex items-center gap-2 flex-wrap"></div>
+      <button id="reset-filters-btn" class="text-xs text-muted hover:text-amber underline">
+        Reset filters
+      </button>
+    </div>
+
+    <div id="empty-state" class="hidden text-center py-24">
+      <p class="font-display text-xl text-ink mb-2">No listings yet</p>
+      <p class="text-muted text-sm">
+        Browse rental search results on MagicBricks, 99acres, or NoBroker listings you scroll past will appear here automatically.
+      </p>
+    </div>
+
+    <div id="table-wrapper" class="hidden bg-surface border border-sand rounded-2xl overflow-hidden">
+      <div class="overflow-y-auto max-h-[75vh]">
+        <table class="w-full text-sm table-fixed border-separate border-spacing-0">
+          <thead>
+            <tr class="text-left text-muted sticky top-0 z-10">
+              <th class="w-[18%] px-3 py-3 font-semibold text-xs uppercase tracking-wide bg-cream border-b border-sand">Title</th>
+              <th class="w-[11%] px-3 py-3 font-semibold text-xs uppercase tracking-wide bg-cream border-b border-sand">Price</th>
+              <th class="w-[10%] px-3 py-3 font-semibold text-xs uppercase tracking-wide bg-cream border-b border-sand">Furnishing</th>
+              <th class="w-[6%] px-3 py-3 font-semibold text-xs uppercase tracking-wide bg-cream border-b border-sand">Bath</th>
+              <th class="w-[10%] px-3 py-3 font-semibold text-xs uppercase tracking-wide bg-cream border-b border-sand">Tenant</th>
+              <th class="w-[8%] px-3 py-3 font-semibold text-xs uppercase tracking-wide bg-cream border-b border-sand">Area</th>
+              <th class="w-[7%] px-3 py-3 font-semibold text-xs uppercase tracking-wide bg-cream border-b border-sand">Floor</th>
+              <th class="w-[9%] px-3 py-3 font-semibold text-xs uppercase tracking-wide bg-cream border-b border-sand">Type</th>
+              <th class="w-[7%] px-3 py-3 font-semibold text-xs uppercase tracking-wide bg-cream border-b border-sand">Gated</th>
+              <th class="w-[8%] px-3 py-3 font-semibold text-xs uppercase tracking-wide bg-cream border-b border-sand">Source</th>
+              <th class="w-[6%] px-3 py-3 font-semibold text-xs uppercase tracking-wide bg-cream border-b border-sand"></th>
+            </tr>
+          </thead>
+          <tbody id="listings-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -2,70 +2,212 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Acreo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="output.css" />
 </head>
 <body class="bg-cream text-ink font-body min-h-screen">
 
-  <header class="border-b border-sand bg-surface">
-    <div class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
-      <div>
-        <h1 class="font-display text-2xl font-semibold text-ink">Acreo</h1>
-        <p id="listing-count" class="text-sm text-muted mt-0.5">0 listings collected</p>
+  <nav class="bg-teal">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between flex-wrap gap-2">
+      <div class="flex items-center gap-2">
+        <span class="bg-surface text-teal rounded-full px-3 py-3 font-display font-semibold text-xs">A</span>
+        <span class="font-display text-xl font-semibold text-white">Acreo</span>
       </div>
-      <button
-        id="clear-btn"
-        class="text-sm text-muted hover:text-amber border border-sand hover:border-amber rounded-full px-4 py-2 transition-colors"
-      >
-        Clear all
-      </button>
+      <div class="flex items-center flex-wrap gap-2">
+        <a href="#how-it-works" class="text-white text-sm px-2.5 py-1.5 hover:underline transition-colors">How it works</a>
+        <a href="#features" class="text-white text-sm px-2.5 py-1.5 hover:underline transition-colors">Features</a>
+        <a href="#install" class="text-white text-sm px-2.5 py-1.5 hover:underline transition-colors">Install</a>
+        <a href="#contact" class="text-white text-sm px-2.5 py-1.5 hover:underline transition-colors">Contact</a>
+      </div>
+      <a href="main.html" class="bg-surface text-teal rounded-full px-5 py-2 text-sm font-semibold hover:text-amber transition-colors">Open Acreo</a>
+    </div>
+  </nav>
+
+  <header class="bg-cream border-b border-sand">
+    <div class="max-w-6xl mx-auto px-6 py-24 text-center">
+      <p class="text-teal text-xs font-semibold mb-2">Chrome Extension &middot; MagicBricks &middot; 99acres &middot; NoBroker</p>
+      <h1 class="font-display text-2xl font-semibold text-ink mb-6">Stop losing track of every good rental you've scrolled past.</h1>
+      <p class="text-muted text-sm mb-6">Acreo quietly collects listings while you browse MagicBricks, 99acres, and NoBroker, then lays them out in one clean, filterable table so comparing apartments doesn't mean fifteen open tabs.</p>
+
+      <p class="text-center mb-6">
+        <a href="main.html" class="inline-block bg-teal text-white rounded-full px-6 py-3 text-sm font-semibold hover:text-amber transition-colors">Open Acreo</a>
+        &nbsp; &nbsp;
+        <a href="#how-it-works" class="inline-block text-ink underline hover:text-amber transition-colors text-sm py-3">See how it works</a>
+      </p>
+
+      <div class="bg-surface border border-sand rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead>
+              <tr class="border-b border-sand">
+                <th class="px-4 py-3 text-xs font-semibold text-muted">Listing</th>
+                <th class="px-4 py-3 text-xs font-semibold text-muted">Source</th>
+                <th class="px-4 py-3 text-xs font-semibold text-muted text-right">Rent</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-sand last:border-0">
+                <td class="px-4 py-3 text-ink font-medium">2BHK Apartment, Malviya Nagar</td>
+                <td class="px-4 py-3 text-teal">MagicBricks</td>
+                <td class="px-4 py-3 text-ink font-semibold text-right">&#8377;24,000</td>
+              </tr>
+              <tr class="border-b border-sand last:border-0">
+                <td class="px-4 py-3 text-ink font-medium">3BHK Independent House</td>
+                <td class="px-4 py-3 text-teal">99acres</td>
+                <td class="px-4 py-3 text-ink font-semibold text-right">&#8377;38,500</td>
+              </tr>
+              <tr class="border-b border-sand last:border-0">
+                <td class="px-4 py-3 text-ink font-medium">1BHK Flat, C-Scheme</td>
+                <td class="px-4 py-3 text-teal">NoBroker</td>
+                <td class="px-4 py-3 text-ink font-semibold text-right">&#8377;15,000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </header>
+  <section id="how-it-works" class="bg-cream border-b border-sand">
+    <div class="max-w-6xl mx-auto px-6 py-24 text-center">
+      <p class="text-teal text-xs font-semibold mb-2">How it works</p>
+      <h2 class="font-display text-2xl font-semibold text-ink mb-6">Three steps. Zero copy-pasting.</h2>
 
-  <main class="max-w-6xl mx-auto px-6 py-8">
-
-    <div id="filters" class="hidden mb-6 flex flex-wrap items-center gap-x-8 gap-y-4">
-      <div id="source-filters" class="flex items-center gap-2 flex-wrap"></div>
-      <div id="bhk-filters" class="flex items-center gap-2 flex-wrap"></div>
-      <div id="furnishing-filters" class="flex items-center gap-2 flex-wrap"></div>
-      <div id="tenant-filters" class="flex items-center gap-2 flex-wrap"></div>
-      <button id="reset-filters-btn" class="text-xs text-muted hover:text-amber underline">
-        Reset filters
-      </button>
-    </div>
-
-    <div id="empty-state" class="hidden text-center py-24">
-      <p class="font-display text-xl text-ink mb-2">No listings yet</p>
-      <p class="text-muted text-sm">
-        Browse rental search results on MagicBricks listings you scroll past will appear here automatically.
-      </p>
-    </div>
-
-    <div id="table-wrapper" class="hidden bg-surface border border-sand rounded-2xl overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-sand text-left text-muted">
-              <th class="px-5 py-3 font-medium">Title</th>
-              <th class="px-5 py-3 font-medium">Price</th>
-              <th class="px-5 py-3 font-medium">Furnishing / Status</th>
-              <th class="px-5 py-3 font-medium">Bathroom</th>
-              <th class="px-5 py-3 font-medium">Tenant</th>
-              <th class="px-5 py-3 font-medium">Area</th>
-              <th class="px-5 py-3 font-medium">Floor</th>
-              <th class="px-5 py-3 font-medium">Source</th>
-              <th class="px-5 py-3 font-medium"></th>
-            </tr>
-          </thead>
-          <tbody id="listings-body"></tbody>
-        </table>
+      <div class="bg-surface border border-sand rounded-2xl px-6 text-left">
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">1. Browse as usual</p>
+          <p class="text-muted text-sm">Search for rentals on MagicBricks, 99acres, or NoBroker exactly the way you normally would.</p>
+        </div>
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">2. Acreo collects quietly</p>
+          <p class="text-muted text-sm">Every listing that appears in your results is saved to your own browser storage nothing to click, nothing sent anywhere.</p>
+        </div>
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">3. Open the popup, compare</p>
+          <p class="text-muted text-sm">Click the Acreo icon to see everything you've come across in one sortable, filterable table.</p>
+        </div>
       </div>
     </div>
+  </section>
 
-  </main>
+  <section id="features" class="bg-cream border-b border-sand">
+    <div class="max-w-6xl mx-auto px-6 py-24 text-center">
+      <p class="text-teal text-xs font-semibold mb-2">Features</p>
+      <h2 class="font-display text-2xl font-semibold text-ink mb-6">Built for comparing, not just collecting</h2>
 
-  <script src="app.js"></script>
+      <div class="bg-surface border border-sand rounded-2xl px-6 text-left">
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">Auto-capture across sites</p>
+          <p class="text-muted text-sm">Listings from MagicBricks, 99acres, and NoBroker all land in the same table, same format no manual entry.</p>
+        </div>
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">Smart filters</p>
+          <p class="text-muted text-sm">Narrow by source, BHK count, furnishing status, or preferred tenant type click a chip, done.</p>
+        </div>
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">On-demand detail loading</p>
+          <p class="text-muted text-sm">Missing floor, bathrooms, or gated security info? Hit &ldquo;Load details&rdquo; and Acreo fetches it from the listing page.</p>
+        </div>
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">Private by default</p>
+          <p class="text-muted text-sm">Everything lives in your browser's local storage. Nothing is uploaded to a server, ever.</p>
+        </div>
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">One click back to source</p>
+          <p class="text-muted text-sm">Every row keeps a direct &ldquo;View&rdquo; link back to the original listing when you're ready to reach out.</p>
+        </div>
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">Clear all, anytime</p>
+          <p class="text-muted text-sm">Starting a fresh search? One click empties your list so old listings don't clutter new comparisons.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-cream border-b border-sand">
+    <div class="max-w-6xl mx-auto px-6 py-24 text-center">
+      <p class="text-teal text-xs font-semibold mb-2">Filters</p>
+      <h2 class="font-display text-2xl font-semibold text-ink mb-6">Slice your list however you're deciding</h2>
+      <p class="text-center">
+        <span class="inline-block bg-teal text-white rounded-full px-4 py-1.5 text-xs font-medium">MagicBricks</span>
+        <span class="inline-block bg-teal-soft text-teal rounded-full px-4 py-1.5 text-xs font-medium">99acres</span>
+        <span class="inline-block bg-teal-soft text-teal rounded-full px-4 py-1.5 text-xs font-medium">NoBroker</span>
+        <span class="inline-block bg-teal text-white rounded-full px-4 py-1.5 text-xs font-medium">2 BHK</span>
+        <span class="inline-block bg-teal-soft text-teal rounded-full px-4 py-1.5 text-xs font-medium">3 BHK</span>
+        <span class="inline-block bg-teal-soft text-teal rounded-full px-4 py-1.5 text-xs font-medium">Furnished</span>
+        <span class="inline-block bg-teal text-white rounded-full px-4 py-1.5 text-xs font-medium">Semi-Furnished</span>
+        <span class="inline-block bg-teal-soft text-teal rounded-full px-4 py-1.5 text-xs font-medium">Family</span>
+        <span class="inline-block bg-teal-soft text-teal rounded-full px-4 py-1.5 text-xs font-medium">Bachelors</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-cream border-b border-sand">
+    <div class="max-w-6xl mx-auto px-6 py-24">
+      <div class="bg-surface border border-sand rounded-2xl px-6 py-8 text-center">
+        <p class="font-display text-xl font-semibold text-ink mb-2">Your list, your browser, nobody else.</p>
+        <p class="text-muted text-sm">Acreo stores everything with chrome.storage.local. There's no backend, no account, and no listing data ever leaves your device &ldquo;Load details&rdquo; only ever talks to the listing page you already clicked on.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="install" class="bg-cream border-b border-sand">
+    <div class="max-w-6xl mx-auto px-6 py-24 text-center">
+      <p class="text-teal text-xs font-semibold mb-2">Install</p>
+      <h2 class="font-display text-2xl font-semibold text-ink mb-6">Get set up in under a minute</h2>
+
+      <div class="bg-surface border border-sand rounded-2xl px-6 text-left">
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">1. Download the extension folder</p>
+          <p class="text-muted text-sm">Grab the Acreo files and unzip them somewhere you won't move, like a &ldquo;Chrome Extensions&rdquo; folder.</p>
+        </div>
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">2. Open chrome://extensions</p>
+          <p class="text-muted text-sm">Paste that into your address bar, or go to Chrome's menu &rarr; Extensions &rarr; Manage Extensions.</p>
+        </div>
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">3. Turn on Developer mode</p>
+          <p class="text-muted text-sm">Flip the switch in the top-right corner of the Extensions page.</p>
+        </div>
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">4. Click &ldquo;Load unpacked&rdquo;</p>
+          <p class="text-muted text-sm">Select the Acreo folder you downloaded. The icon appears in your toolbar immediately.</p>
+        </div>
+        <div class="py-5 border-b border-sand last:border-0">
+          <p class="text-ink font-semibold text-sm mb-2">5. Start browsing rentals</p>
+          <p class="text-muted text-sm">Head to MagicBricks, 99acres, or NoBroker and search as usual Acreo takes it from there.</p>
+        </div>
+      </div>
+
+      <p class="mb-2"></p>
+      <a href="https://github.com/Shaurya12joshi/Acreo" target="_blank" rel="noopener noreferrer" class="inline-block bg-teal text-white rounded-full px-6 py-3 text-sm font-semibold hover:text-amber transition-colors">Download from GitHub</a>
+    </div>
+  </section>
+
+  <section id="contact" class="bg-cream border-b border-sand">
+    <div class="max-w-6xl mx-auto px-6 py-24 text-center">
+      <p class="text-teal text-xs font-semibold mb-2">Contact</p>
+      <h2 class="font-display text-2xl font-semibold text-ink mb-6">Questions, bugs, ideas?</h2>
+      <p class="text-muted text-sm mb-6">Acreo is a small side project reach out directly and you'll actually hear back.</p>
+      <p class="text-center">
+        <a href="https://github.com/Shaurya12joshi/Acreo" target="_blank" rel="noopener noreferrer" class="inline-block border border-sand rounded-full px-5 py-3 text-sm font-medium text-ink hover:border-teal hover:text-teal transition-colors">GitHub</a>
+        &nbsp; &nbsp;
+        <a href="mailto:shaurya12joshi@gmail.com" class="inline-block border border-sand rounded-full px-5 py-3 text-sm font-medium text-ink hover:border-teal hover:text-teal transition-colors">Email us</a>
+      </p>
+    </div>
+  </section>
+
+  <footer class="bg-cream">
+    <div class="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between flex-wrap gap-2">
+      <div class="flex items-center gap-2">
+        <span class="bg-teal text-white rounded-full px-3 py-3 font-display font-semibold text-xs">A</span>
+        <span class="font-display font-semibold text-ink text-sm">Acreo</span>
+      </div>
+      <p class="text-muted text-xs">Built for apartment hunting in India. Not affiliated with MagicBricks, 99acres, or NoBroker.</p>
+    </div>
+  </footer>
+
 </body>
 </html>

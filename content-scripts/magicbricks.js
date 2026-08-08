@@ -1,3 +1,10 @@
+function detectListingType(title) {
+  const t = title?.toLowerCase() || "";
+  if (t.includes("rent")) return "rent";
+  if (t.includes("sale") || t.includes("resale")) return "sale";
+  return "unknown";
+}
+
 function extractSummaryFields(cardEl) {
   const items = cardEl.querySelectorAll(".mb-srp__card__summary__list--item");
   const fields = {};
@@ -9,11 +16,18 @@ function extractSummaryFields(cardEl) {
   return fields;
 }
 
-function detectListingType(title) {
-  const t = title?.toLowerCase() || "";
-  if (t.includes("rent")) return "rent";
-  if (t.includes("sale") || t.includes("resale")) return "sale";
-  return "unknown";
+function stringToHex(str) {
+  return Array.from(str)
+    .map((c) => c.charCodeAt(0).toString(16))
+    .join("");
+}
+
+function buildPropertyUrl(cardEl) {
+  const listWrapper = cardEl.closest('[id^="cardid"]');
+  const cardId = listWrapper?.id.replace("cardid", "");
+  if (!cardId) return null;
+  const encodedId = stringToHex("MB" + cardId);
+  return `https://www.magicbricks.com/propertyDetails/property&id=${encodedId}`;
 }
 
 function extractListingData(cardEl) {
@@ -34,6 +48,7 @@ function extractListingData(cardEl) {
     source: "magicbricks",
   };
 }
+
 const seenCardIds = new Set();
 
 function scrapeNewListings() {
@@ -62,17 +77,3 @@ function startObserving() {
 }
 
 startObserving();
-
-function stringToHex(str) {
-  return Array.from(str)
-    .map((c) => c.charCodeAt(0).toString(16))
-    .join("");
-}
-
-function buildPropertyUrl(cardEl) {
-  const listWrapper = cardEl.closest('[id^="cardid"]');
-  const cardId = listWrapper?.id.replace("cardid", "");
-  if (!cardId) return null;
-  const encodedId = stringToHex("MB" + cardId);
-  return `https://www.magicbricks.com/propertyDetails/property&id=${encodedId}`;
-}

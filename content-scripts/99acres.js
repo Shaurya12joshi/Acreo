@@ -1,3 +1,9 @@
+function detectListingType(title) {
+  const t = title?.toLowerCase() || "";
+  if (t.includes("rent")) return "rent";
+  return "sale";
+}
+
 function extractAreaWrapFields(cardEl) {
   const wraps = cardEl.querySelectorAll(".tupleNew__areaWrap");
   return Array.from(wraps).map((wrap) => {
@@ -8,12 +14,6 @@ function extractAreaWrapFields(cardEl) {
       null;
     return { value, label };
   });
-}
-
-function detectListingType(title) {
-  const t = title?.toLowerCase() || "";
-  if (t.includes("rent")) return "rent";
-  return "sale";
 }
 
 function extractListingData(cardEl) {
@@ -42,11 +42,11 @@ function extractListingData(cardEl) {
     title: heading,
     listingType: detectListingType(heading),
     priceAmount,
-    priceSubLine, 
+    priceSubLine,
     link,
     "carpet-area": carpetArea,
     bathroom,
-    floor, 
+    floor,
     furnishing,
     status,
     source: "99acres",
