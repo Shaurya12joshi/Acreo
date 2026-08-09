@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acreo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="output.css">
+<style>
+  .step-row{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:16px}
+  .step-row > div{flex:1 1 50%;min-width:0}
+  .step-shot{cursor:pointer;transition:transform .15s ease;position:relative}
+  .step-shot:hover{transform:scale(1.012)}
+  .zoom-badge{
+    position:absolute; top:10px; left:50%; transform:translateX(-50%);
+    width:34px; height:34px; border-radius:50%;
+    background:rgba(42,38,32,.68);
+    display:flex; align-items:center; justify-content:center;
+    pointer-events:none;
+  }
+  .zoom-badge svg{width:17px;height:17px}
+  .lightbox-overlay{
+    position:fixed; inset:0; z-index:50; display:none;
+    align-items:center; justify-content:center;
+    background:rgba(20,17,13,.86); padding:24px;
+  }
+  .lightbox-overlay.open{display:flex}
+  .lightbox-overlay img{max-width:94vw; max-height:90vh; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .lightbox-close{
+    position:absolute; top:20px; right:24px;
+    color:#fff; font-size:36px; line-height:1; cursor:pointer;
+  }
+  @media (max-width:640px){
+    #how-it-works .max-w-6xl{padding-left:12px; padding-right:12px}
+    .step-row{gap:10px}
+    .step-row > div{padding:10px 8px !important}
+    .step-row h3{font-size:.95rem !important; line-height:1.25}
+    .step-row p{font-size:.72rem !important; line-height:1.35}
+    .step-row .text-xs{font-size:.65rem !important}
+    .zoom-badge{width:30px; height:30px; top:8px}
+    .zoom-badge svg{width:15px;height:15px}
+  }
+</style>
+</head>
+<body class="bg-cream font-body text-ink min-h-screen">
+
+<header class="bg-teal border-b border-sand w-full">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between flex-wrap gap-2">
+    <a href="#" class="font-display text-xl font-semibold text-white">Acreo</a>
+    <nav class="flex items-center gap-x-8 flex-wrap">
+      <a href="#how-it-works" class="text-sm text-white hover:text-amber hover:underline transition-colors">How it works</a>
+      <a href="#features" class="text-sm text-white hover:text-amber hover:underline transition-colors">Features</a>
+      <a href="#install-steps" class="text-sm text-white hover:text-amber hover:underline transition-colors">Install</a>
+    </nav>
+    <a href="#how-it-works" onclick="window.open('https://github.com/Shaurya12joshi/Acreo')" class="bg-surface text-teal font-semibold text-sm rounded-full px-5 py-2 hover:text-amber transition-colors">Download from GitHub</a>
+  </div>
+</header>
+
+<section class="bg-cream py-24">
+  <div class="max-w-6xl mx-auto px-6 text-center">
+    <span class="inline-block border border-sand bg-surface rounded-full px-4 py-1 text-xs font-medium text-teal mb-6">
+      Works on <span class="text-amber font-semibold">MagicBricks</span> · <span class="text-amber font-semibold">99acres</span> · <span class="text-amber font-semibold">NoBroker</span>
+    </span>
+
+    <h1 class="font-display text-2xl font-semibold text-ink mb-2">
+      Every rental you've scrolled past, <span class="text-amber">in one table.</span>
+    </h1>
+    <p class="font-body text-sm text-muted mb-6 max-w-6xl mx-auto">
+      Acreo saves listings automatically as you browse. No tabs, no copy-paste, no losing track of the apartment you liked three days ago.
+    </p>
+
+    <div class="text-center mb-2">
+      <a href="#how-it-works" onclick="window.open('https://github.com/Shaurya12joshi/Acreo')" class="inline-block bg-teal text-white font-semibold text-sm rounded-2xl px-6 py-3 mb-2 hover:text-amber transition-colors">Download from GitHub</a>
+      <a href="#how-it-works" class="inline-block border border-sand bg-surface text-ink font-medium text-sm rounded-2xl px-6 py-3 mb-2 hover:border-teal transition-colors">See how it works</a>
+    </div>
+    <p class="text-xs text-muted mb-6">Free forever · No account required · Your data stays on your device</p>
+
+    <div class="border border-sand bg-surface rounded-2xl overflow-hidden text-left" id="demo">
+      <div class="border-b border-sand bg-cream px-4 py-2 flex items-center gap-2">
+        <span class="text-xs text-muted">●</span>
+        <span class="text-xs text-muted">●</span>
+        <span class="text-xs text-muted">●</span>
+      </div>
+      <div class="overflow-x-auto px-4 py-5">
+        <table class="table w-full">
+          <tr class="border-b border-sand">
+            <th class="text-left text-xs font-semibold text-muted px-3 py-2">Source</th>
+            <th class="text-left text-xs font-semibold text-muted px-3 py-2">Rent</th>
+            <th class="text-left text-xs font-semibold text-muted px-3 py-2">Deposit</th>
+            <th class="text-left text-xs font-semibold text-muted px-3 py-2">Area</th>
+            <th class="text-left text-xs font-semibold text-muted px-3 py-2">Floor</th>
+          </tr>
+          <tr class="border-b border-sand last:border-0">
+            <td class="px-3 py-2 text-sm text-ink"><span class="bg-teal-soft text-teal rounded-full px-2.5 py-1 text-xs font-semibold">MagicBricks</span></td>
+            <td class="px-3 py-2 text-sm text-ink">₹32,000</td>
+            <td class="px-3 py-2 text-sm text-ink">₹1,00,000</td>
+            <td class="px-3 py-2 text-sm text-ink">1,050 sqft</td>
+            <td class="px-3 py-2 text-sm text-ink">4th of 9</td>
+          </tr>
+          <tr class="border-b border-sand last:border-0">
+            <td class="px-3 py-2 text-sm text-ink"><span class="bg-cream text-amber rounded-full px-2.5 py-1 text-xs font-semibold">99acres</span></td>
+            <td class="px-3 py-2 text-sm text-ink">₹28,500</td>
+            <td class="px-3 py-2 text-sm text-ink">₹85,000</td>
+            <td class="px-3 py-2 text-sm text-ink">960 sqft</td>
+            <td class="px-3 py-2 text-sm text-ink">2nd of 6</td>
+          </tr>
+          <tr class="border-b border-sand last:border-0">
+            <td class="px-3 py-2 text-sm text-ink"><span class="bg-surface border border-sand text-ink rounded-full px-2.5 py-1 text-xs font-semibold">NoBroker</span></td>
+            <td class="px-3 py-2 text-sm text-ink">₹35,000</td>
+            <td class="px-3 py-2 text-sm text-ink">₹1,20,000</td>
+            <td class="px-3 py-2 text-sm text-ink">1,180 sqft</td>
+            <td class="px-3 py-2 text-sm text-ink">7th of 12</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="text-center mt-0.5">
+      <span class="inline-block text-sm font-semibold text-muted px-3 py-1">132 listings captured this week</span>
+      <span class="inline-block text-sm font-semibold text-muted px-3 py-1">0 tabs open</span>
+      <span class="inline-block text-sm font-semibold text-muted px-3 py-1">16 sec to compare</span>
+    </div>
+  </div>
+</section>
+
+<section id="how-it-works" class="bg-surface py-24">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center text-teal text-xs font-semibold mb-2">How it works</div>
+    <h2 class="font-display text-2xl font-semibold text-center text-ink mb-6">Four steps, zero guesswork.</h2>
+
+    <div class="step-row mb-6">
+      <div class="px-6 py-5">
+        <span class="inline-block bg-teal-soft text-teal font-semibold text-xs rounded-full px-3 py-1 mb-2">01</span>
+        <h3 class="font-display text-xl font-semibold text-ink mb-2">Every listing, logged automatically</h3>
+        <p class="text-sm text-muted">Open MagicBricks, 99acres, or NoBroker like you always do. Acreo logs every listing the moment you view it — no button to click.</p>
+      </div>
+      <div class="px-6 py-5">
+        <div class="border border-sand bg-cream rounded-2xl overflow-hidden step-shot" onclick="openLightbox('./assets/image1.png')">
+          <div class="border-b border-sand bg-cream px-4 py-2 text-xs text-muted">● ● ●</div>
+          <img src="./assets/image1.png" alt="Acreo header showing 132 of 132 listings logged automatically" class="w-full">
+          <span class="zoom-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-row mb-6">
+      <div class="px-6 py-5">
+        <div class="border border-sand bg-cream rounded-2xl overflow-hidden step-shot" onclick="openLightbox('./assets/image2.png')">
+          <div class="border-b border-sand bg-cream px-4 py-2 text-xs text-muted">● ● ●</div>
+          <img src="./assets/image5.png" alt="Acreo filter chips for MagicBricks, 99acres, NoBroker, BHK, furnishing, and tenant type" class="w-full">
+          <span class="zoom-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+        </div>
+      </div>
+      <div class="px-6 py-5">
+        <span class="inline-block bg-teal-soft text-teal font-semibold text-xs rounded-full px-3 py-1 mb-2">02</span>
+        <h3 class="font-display text-xl font-semibold text-ink mb-2">Tap a chip to filter</h3>
+        <p class="text-sm text-muted">Narrow 132 listings down in one tap — by source, BHK, furnishing status, or tenant type. No dropdowns, no forms.</p>
+      </div>
+    </div>
+
+    <div class="step-row mb-6">
+      <div class="px-6 py-5">
+        <span class="inline-block bg-teal-soft text-teal font-semibold text-xs rounded-full px-3 py-1 mb-2">03</span>
+        <h3 class="font-display text-xl font-semibold text-ink mb-2">Compare side by side</h3>
+        <p class="text-sm text-muted">Rent, deposit, area, and floor — all lined up in one table instead of six open tabs and a half-remembered scroll.</p>
+      </div>
+      <div class="px-6 py-5">
+        <div class="border border-sand bg-cream rounded-2xl overflow-hidden step-shot" onclick="openLightbox('./assets/image3.png')">
+          <div class="border-b border-sand bg-cream px-4 py-2 text-xs text-muted">● ● ●</div>
+          <img src="./assets/image6.png" alt="Acreo comparison table with rent and deposit for each listing" class="w-full">
+          <span class="zoom-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="px-6 py-5">
+        <div class="border border-sand bg-cream rounded-2xl overflow-hidden step-shot" onclick="openLightbox('./assets/image4.png')">
+          <div class="border-b border-sand bg-cream px-4 py-2 text-xs text-muted">● ● ●</div>
+          <img src="./assets/image7.png" alt="Acreo View button linking back to the original rental listing" class="w-full">
+          <span class="zoom-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+        </div>
+      </div>
+      <div class="px-6 py-5">
+        <span class="inline-block bg-teal-soft text-teal font-semibold text-xs rounded-full px-3 py-1 mb-2">04</span>
+        <h3 class="font-display text-xl font-semibold text-ink mb-2">One click back to the source</h3>
+        <p class="text-sm text-muted">Found the one? Hit View to jump straight to the original listing on the site it came from and message the owner or broker.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="features" class="bg-cream py-24">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center text-teal text-xs font-semibold mb-2">Features</div>
+    <h2 class="font-display text-2xl font-semibold text-center text-ink mb-6">Built for the way house-hunting actually happens.</h2>
+
+    <div class="flex flex-wrap gap-2">
+      <div class="w-full border border-sand bg-surface rounded-2xl px-5 py-5 mb-2">
+        <h3 class="font-semibold text-sm text-ink mb-2">Auto-captures listings</h3>
+        <p class="text-sm text-muted">No manual saving. Every listing you open is logged the instant you view it.</p>
+      </div>
+      <div class="w-full border border-sand bg-surface rounded-2xl px-5 py-5 mb-2">
+        <h3 class="font-semibold text-sm text-ink mb-2">Cross-platform filters</h3>
+        <p class="text-sm text-muted">Filter across MagicBricks, 99acres, and NoBroker in one place — by BHK, furnishing, tenant type, and more.</p>
+      </div>
+      <div class="w-full border border-sand bg-surface rounded-2xl px-5 py-5 mb-2">
+        <h3 class="font-semibold text-sm text-ink mb-2">One comparison table</h3>
+        <p class="text-sm text-muted">Rent, deposit, area, and floor for every listing, side by side — no spreadsheet required.</p>
+      </div>
+      <div class="w-full border border-sand bg-surface rounded-2xl px-5 py-5 mb-2">
+        <h3 class="font-semibold text-sm text-ink mb-2">One click to the source</h3>
+        <p class="text-sm text-muted">Jump straight back to the original listing to contact the owner or broker.</p>
+      </div>
+      <div class="w-full border border-sand bg-surface rounded-2xl px-5 py-5 mb-2">
+        <h3 class="font-semibold text-sm text-ink mb-2">Private by default</h3>
+        <p class="text-sm text-muted">Your saved listings live in your browser. No sign-up, no server, no ads based on your search.</p>
+      </div>
+      <div class="w-full border border-sand bg-surface rounded-2xl px-5 py-5">
+        <h3 class="font-semibold text-sm text-ink mb-2">Zero setup</h3>
+        <p class="text-sm text-muted">Install and go. There's nothing to configure before Acreo starts working.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-surface py-24">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="border border-sand bg-cream rounded-2xl px-6 py-8 text-center">
+      <h2 class="font-display text-xl font-semibold text-ink mb-2">Your list, your browser, nobody else.</h2>
+      <p class="text-sm text-muted">Stored with chrome.storage.local. No backend, no account, nothing uploaded.</p>
+    </div>
+  </div>
+</section>
+
+<section id="install-steps" class="bg-cream py-24">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center text-teal text-xs font-semibold mb-2">Install</div>
+    <h2 class="font-display text-2xl font-semibold text-center text-ink mb-2">Get Acreo running in under a minute.</h2>
+    <p class="text-sm text-muted text-center mb-6">Acreo isn't on the Chrome Web Store yet, so you'll load it manually. Five steps, about 30 seconds.</p>
+
+    <div class="flex flex-wrap gap-2 mb-6">
+      <div class="w-full border border-sand bg-surface rounded-2xl px-6 py-5">
+        <span class="inline-block bg-teal-soft text-teal font-semibold text-xs rounded-full px-3 py-1 mb-2">Step 1</span>
+        <h3 class="font-display text-xl font-semibold text-ink mb-2">Download the code from GitHub</h3>
+        <p class="text-sm text-muted">Go to the <a onclick="window.open('https://github.com/Shaurya12joshi/Acreo')" class="text-teal font-semibold underline hover:text-amber transition-colors">Acreo GitHub repository</a>. Click the green <span class="font-semibold text-ink">Code</span> button, then choose <span class="font-semibold text-ink">Download ZIP</span>.</p>
+      </div>
+
+      <div class="w-full border border-sand bg-surface rounded-2xl px-6 py-5">
+        <span class="inline-block bg-teal-soft text-teal font-semibold text-xs rounded-full px-3 py-1 mb-2">Step 2</span>
+        <h3 class="font-display text-xl font-semibold text-ink mb-2">Unzip the folder</h3>
+        <p class="text-sm text-muted">Find the downloaded ZIP file in your Downloads folder and extract it. You should get a folder named <span class="inline-block bg-cream border border-sand rounded-full px-3 py-1 text-xs text-ink">Acreo-main</span>. Remember where you put it — you'll point Chrome to this folder next.</p>
+      </div>
+
+      <div class="w-full border border-sand bg-surface rounded-2xl px-6 py-5">
+        <span class="inline-block bg-teal-soft text-teal font-semibold text-xs rounded-full px-3 py-1 mb-2">Step 3</span>
+        <h3 class="font-display text-xl font-semibold text-ink mb-2">Open Chrome's extensions page</h3>
+        <p class="text-sm text-muted">Type <span class="inline-block bg-cream border border-sand rounded-full px-3 py-1 text-xs text-ink">chrome://extensions</span> into your address bar and hit Enter.</p>
+      </div>
+
+      <div class="w-full border border-sand bg-surface rounded-2xl px-6 py-5">
+        <span class="inline-block bg-teal-soft text-teal font-semibold text-xs rounded-full px-3 py-1 mb-2">Step 4</span>
+        <h3 class="font-display text-xl font-semibold text-ink mb-2">Turn on Developer mode</h3>
+        <p class="text-sm text-muted">Flip the <span class="font-semibold text-ink">Developer mode</span> toggle in the top-right corner of the extensions page. This unlocks loading an extension that isn't from the Chrome Web Store.</p>
+      </div>
+
+      <div class="w-full border border-sand bg-surface rounded-2xl px-6 py-5">
+        <span class="inline-block bg-teal-soft text-teal font-semibold text-xs rounded-full px-3 py-1 mb-2">Step 5</span>
+        <h3 class="font-display text-xl font-semibold text-ink mb-2">Click "Load unpacked"</h3>
+        <p class="text-sm text-muted">A new button labeled <span class="font-semibold text-ink">Load unpacked</span> will appear. Click it, then select the <span class="inline-block bg-cream border border-sand rounded-full px-3 py-1 text-xs text-ink">Acreo-main</span> folder from step 2. Acreo will appear in your extensions list and start logging listings right away.</p>
+      </div>
+    </div>
+
+    <div class="border border-sand bg-surface rounded-2xl px-6 py-8 text-center mb-6">
+      <h2 class="font-display text-xl font-semibold text-ink mb-2">Ready when you are.</h2>
+      <p class="text-sm text-muted mb-6">Free, private, and out of your way once it's set up.</p>
+      <div class="text-center">
+        <a href="#how-it-works" onclick="window.open('https://github.com/Shaurya12joshi/Acreo')" class="inline-block bg-teal text-white font-semibold text-sm rounded-2xl px-6 py-3 mb-2 hover:text-amber transition-colors">Download from GitHub</a>        </div>
+    </div>
+
+    <div class="text-center">
+      <div class="text-teal text-xs font-semibold mb-2">Contact</div>
+      <h2 class="font-display text-2xl font-semibold text-ink mb-6">Questions or bugs?</h2>
+      <div class="text-center">
+        <a href="https://github.com/Shaurya12joshi/"  class="inline-block border border-sand bg-surface text-ink font-medium text-sm rounded-full px-5 py-2 mb-2 hover:border-teal hover:text-amber transition-colors">GitHub</a>
+        <a href="mailto:shaurya12joshi@gmail.com" class="inline-block border border-sand bg-surface text-ink font-medium text-sm rounded-full px-5 py-2 mb-2 hover:border-teal hover:text-amber transition-colors">Email us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="bg-teal py-8">
+  <div class="max-w-6xl mx-auto px-6 flex items-center justify-between flex-wrap gap-2">
+    <span class="font-display text-sm font-semibold text-white">Acreo</span>
+    <span class="text-xs text-white">Not affiliated with MagicBricks, 99acres, or NoBroker.</span>
+  </div>
+</footer>
+
+<div id="lightbox-overlay" class="lightbox-overlay" onclick="closeLightbox()">
+  <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+  <img id="lightbox-img" src="" alt="Enlarged screenshot" onclick="event.stopPropagation()">
+</div>
+
+<script>
+  function openLightbox(src){
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-overlay').classList.add('open');
+  }
+  function closeLightbox(){
+    document.getElementById('lightbox-overlay').classList.remove('open');
+  }
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') closeLightbox();
+  });
+</script>
+
+</body>
+</html>
