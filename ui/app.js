@@ -61,6 +61,49 @@ function hasValue(value) {
   return Boolean(value) && value !== "Not found";
 }
 
+function getAreaText(listing) {
+  return listing["carpet-area"] || listing["super-area"];
+}
+
+function parseNumeric(str) {
+  if (!str) return null;
+  const match = String(str).replace(/,/g, "").match(/[\d.]+/);
+  if (!match) return null;
+  const num = parseFloat(match[0]);
+  return Number.isFinite(num) && num > 0 ? num : null;
+}
+
+function parsePriceValue(str) {
+  if (!str) return null;
+  const cleaned = String(str).replace(/,/g, "");
+  const numMatch = cleaned.match(/[\d.]+/);
+  if (!numMatch) return null;
+  const num = parseFloat(numMatch[0]);
+  if (!Number.isFinite(num) || num <= 0) return null;
+
+  const rest = cleaned.slice(numMatch.index + numMatch[0].length).toLowerCase();
+  let multiplier = 1;
+  if (/^\s*(cr|crore)\b/.test(rest)) multiplier = 1e7;
+  else if (/^\s*(l|lac|lakh)\b/.test(rest)) multiplier = 1e5;
+  else if (/^\s*k\b/.test(rest)) multiplier = 1e3;
+
+  return num * multiplier;
+}
+
+function computePricePerArea(listing) {
+  const price = parsePriceValue(listing.priceAmount);
+  const area = parseNumeric(getAreaText(listing));
+  if (price === null || area === null) return null;
+  return price / area;
+}
+
+function formatPricePerArea(listing) {
+  const value = computePricePerArea(listing);
+  if (value === null) return null;
+  const rounded = value >= 100 ? Math.round(value).toLocaleString("en-IN") : value.toFixed(2);
+  return `₹${rounded}/sqft`;
+}
+
 function applyFilters(listings) {
   return listings.filter((listing) => {
     if (activeFilters.source && listing.source !== activeFilters.source) return false;
@@ -71,27 +114,59 @@ function applyFilters(listings) {
   });
 }
 
-function chipButton(label, isActive, onClick) {
+function chipButton(label, isActive, onClick, isDisabled = false) {
   const btn = document.createElement("button");
   btn.textContent = label;
-  btn.className = isActive
-    ? "text-xs font-medium rounded-full px-3 py-1.5 bg-teal text-white transition-colors"
-    : "text-xs font-medium rounded-full px-3 py-1.5 bg-surface border border-sand text-ink hover:border-teal transition-colors";
-  btn.addEventListener("click", onClick);
+  if (isDisabled) {
+    btn.disabled = true;
+    btn.className =
+      "text-xs font-medium rounded-full px-3 py-1.5 bg-surface border border-sand text-muted opacity-40 cursor-not-allowed";
+  } else {
+    btn.className = isActive
+      ? "text-xs font-medium rounded-full px-3 py-1.5 bg-teal text-white transition-colors"
+      : "text-xs font-medium rounded-full px-3 py-1.5 bg-surface border border-sand text-ink hover:border-teal transition-colors";
+    btn.addEventListener("click", onClick);
+  }
   return btn;
 }
 
-function renderFilterGroup(container, groupKey, options) {
+function renderFilterGroup(container, groupKey, options, isDisabledFn) {
   container.innerHTML = "";
   options.forEach(({ label, value }) => {
     const isActive = activeFilters[groupKey] === value;
+    const isDisabled = !isActive && Boolean(isDisabledFn && isDisabledFn(value));
     container.appendChild(
-      chipButton(label, isActive, () => {
-        activeFilters[groupKey] = isActive ? null : value;
-        renderAll();
-      })
+      chipButton(
+        label,
+        isActive,
+        () => {
+          activeFilters[groupKey] = isActive ? null : value;
+          renderAll();
+        },
+        isDisabled
+      )
     );
   });
+}
+
+const FILTER_VALUE_GETTERS = {
+  source: (listing) => listing.source,
+  bhk: (listing) => getBhk(listing),
+  furnishing: (listing) => normalizeFurnishing(listing.furnishing),
+  tenant: (listing) => normalizeTenant(listing["tenent-preffered"]),
+};
+
+function getCountsForGroup(groupKey) {
+  const counts = {};
+  allListings.forEach((listing) => {
+    for (const [otherKey, getValue] of Object.entries(FILTER_VALUE_GETTERS)) {
+      if (otherKey === groupKey) continue;
+      if (activeFilters[otherKey] && getValue(listing) !== activeFilters[otherKey]) return;
+    }
+    const value = FILTER_VALUE_GETTERS[groupKey](listing);
+    if (value != null) counts[value] = (counts[value] || 0) + 1;
+  });
+  return counts;
 }
 
 function renderFilters() {
@@ -101,10 +176,15 @@ function renderFilters() {
   }
   filtersRow.classList.remove("hidden");
 
-  renderFilterGroup(sourceFiltersEl, "source", SOURCE_OPTIONS);
-  renderFilterGroup(bhkFiltersEl, "bhk", BHK_OPTIONS);
-  renderFilterGroup(furnishingFiltersEl, "furnishing", FURNISHING_OPTIONS);
-  renderFilterGroup(tenantFiltersEl, "tenant", TENANT_OPTIONS);
+  const sourceCounts = getCountsForGroup("source");
+  const bhkCounts = getCountsForGroup("bhk");
+  const furnishingCounts = getCountsForGroup("furnishing");
+  const tenantCounts = getCountsForGroup("tenant");
+
+  renderFilterGroup(sourceFiltersEl, "source", SOURCE_OPTIONS, (value) => (sourceCounts[value] || 0) === 0);
+  renderFilterGroup(bhkFiltersEl, "bhk", BHK_OPTIONS, (value) => (bhkCounts[value] || 0) === 0);
+  renderFilterGroup(furnishingFiltersEl, "furnishing", FURNISHING_OPTIONS, (value) => (furnishingCounts[value] || 0) === 0);
+  renderFilterGroup(tenantFiltersEl, "tenant", TENANT_OPTIONS, (value) => (tenantCounts[value] || 0) === 0);
 }
 
 function render(listings) {
@@ -140,17 +220,12 @@ function buildRow(listing, index) {
 
   tr.appendChild(titleCell(listing));
   tr.appendChild(priceCell(listing));
-  tr.appendChild(furnishingStatusCell(listing));
-  tr.appendChild(detailCell(listing, listing.bathroom));
-  tr.appendChild(
-    detailCell(listing, listing["tenent-preffered"], normalizeTenant(listing["tenent-preffered"]) || listing["tenent-preffered"])
-  );
-  tr.appendChild(cell(listing["carpet-area"] || listing["super-area"]));
-  tr.appendChild(detailCell(listing, listing.floor));
+  tr.appendChild(cell(getAreaText(listing)));
+  tr.appendChild(cell(formatPricePerArea(listing)));
   tr.appendChild(cell(getPropertyType(listing)));
-  tr.appendChild(gatedCell(listing));
   tr.appendChild(sourceCell(listing.source));
   tr.appendChild(linkCell(listing.link));
+  tr.appendChild(viewMoreDetailsCell(listing));
 
   return tr;
 }
@@ -218,32 +293,6 @@ function sourceCell(source) {
     badge.className += " bg-teal-soft text-teal";
   } else {
     badge.className += " bg-sand text-muted";
-  }
-  td.appendChild(badge);
-  return td;
-}
-
-function gatedCell(listing) {
-  const value = listing.gated;
-  if (!hasValue(value)) {
-    if (!listing.link) return cell(null);
-    const td = document.createElement("td");
-    td.className = "px-3 py-3";
-    td.appendChild(makeLoadDetailsButton(listing));
-    return td;
-  }
-
-  const td = document.createElement("td");
-  td.className = "px-3 py-3";
-  const isYes = value.toLowerCase().includes("yes");
-  const badge = document.createElement("span");
-  badge.textContent = value;
-  if (isYes) {
-    badge.className = "inline-block text-xs font-medium rounded-full px-2.5 py-1";
-    badge.style.backgroundColor = "#e3efe5";
-    badge.style.color = "#3f7a4f";
-  } else {
-    badge.className = "inline-block bg-cream text-muted text-xs font-medium rounded-full px-2.5 py-1 border border-sand";
   }
   td.appendChild(badge);
   return td;
@@ -340,47 +389,127 @@ async function persistListing(updated) {
   await chrome.storage.local.set({ listings: allListings });
 }
 
-function makeLoadDetailsButton(listing) {
+const DETAIL_FIELDS = [
+  { key: "furnishing", label: "Furnishing", getValue: (l) => normalizeFurnishing(l.furnishing) || l.furnishing },
+  { key: "bathroom", label: "Bathroom", getValue: (l) => l.bathroom },
+  {
+    key: "tenent-preffered",
+    label: "Tenant",
+    getValue: (l) => normalizeTenant(l["tenent-preffered"]) || l["tenent-preffered"],
+  },
+  { key: "floor", label: "Floor", getValue: (l) => l.floor },
+  { key: "gated", label: "Gated", getValue: (l) => l.gated },
+];
+
+function detailsAlreadyLoaded(listing) {
+  return DETAIL_FIELDS.some(({ key }) => hasValue(listing[key]));
+}
+
+function detailsModal() {
+  return {
+    root: document.getElementById("details-modal"),
+    backdrop: document.getElementById("details-modal-backdrop"),
+    closeBtn: document.getElementById("details-modal-close"),
+    title: document.getElementById("details-modal-title"),
+    body: document.getElementById("details-modal-body"),
+  };
+}
+
+function closeDetailsModal() {
+  const { root } = detailsModal();
+  root.classList.add("hidden");
+  root.style.display = "none";
+}
+
+function detailRow(label, value) {
+  const tr = document.createElement("tr");
+  tr.className = "border-b border-sand last:border-0";
+
+  const th = document.createElement("th");
+  th.scope = "row";
+  th.className = "text-left text-xs font-semibold uppercase tracking-wide text-muted px-3 py-3 w-1/3";
+  th.textContent = label;
+
+  const td = document.createElement("td");
+  td.className = "text-sm text-ink px-3 py-3";
+  td.textContent = hasValue(value) ? value : "—";
+
+  tr.appendChild(th);
+  tr.appendChild(td);
+  return tr;
+}
+function showDetailsModal() {
+  const { root } = detailsModal();
+  root.classList.remove("hidden");
+  root.style.display = "flex";
+}
+
+function openDetailsModal(listing) {
+  const { title, body } = detailsModal();
+  title.textContent = listing.title || "Listing details";
+  body.innerHTML = "";
+  DETAIL_FIELDS.forEach(({ label, getValue }) => {
+    body.appendChild(detailRow(label, getValue(listing)));
+  });
+  showDetailsModal();
+}
+
+function showDetailsLoadingState(message) {
+  const { title, body } = detailsModal();
+  title.textContent = "Listing details";
+  body.innerHTML = "";
+  const tr = document.createElement("tr");
+  const td = document.createElement("td");
+  td.colSpan = 2;
+  td.className = "text-sm text-muted px-3 py-6 text-center";
+  td.textContent = message;
+  tr.appendChild(td);
+  body.appendChild(tr);
+  showDetailsModal();
+}
+
+function makeViewMoreDetailsButton(listing) {
   const btn = document.createElement("button");
-  btn.textContent = "Load details";
+  btn.textContent = "View More Details";
   btn.className =
-    "text-teal text-xs font-medium border border-dashed border-teal/50 rounded-full px-2.5 py-1 hover:bg-teal-soft transition-colors";
+    "text-teal text-xs font-medium border border-dashed border-teal/50 rounded-full px-2.5 py-1 hover:bg-teal-soft transition-colors whitespace-nowrap cursor-pointer";
+  btn.style.cursor = "pointer";
   btn.addEventListener("click", async () => {
+    if (detailsAlreadyLoaded(listing) || !listing.link) {
+      openDetailsModal(listing);
+      return;
+    }
+
     btn.textContent = "Loading…";
     btn.disabled = true;
+    showDetailsLoadingState("Loading details…");
     try {
       const details = await fetchDetailFields(listing);
-      await persistListing({
+      const updated = {
         ...listing,
         furnishing: details.furnishing || listing.furnishing || "Not found",
         floor: details.floor || listing.floor || "Not found",
         bathroom: details.bathroom || listing.bathroom || "Not found",
         gated: details.gated || listing.gated || "Not found",
         "tenent-preffered": details.tenant || listing["tenent-preffered"] || "Not found",
-      });
+      };
+      await persistListing(updated);
+      openDetailsModal(updated);
     } catch (err) {
-      btn.textContent = "Failed — retry?";
-      btn.className =
-        "text-amber text-xs font-medium border border-dashed border-amber/50 rounded-full px-2.5 py-1 hover:bg-amber-soft transition-colors";
+      showDetailsLoadingState("Couldn't load details — try again.");
+    } finally {
+      btn.textContent = "View More Details";
       btn.disabled = false;
     }
   });
   return btn;
 }
 
-function detailCell(listing, value, displayValue) {
-  if (hasValue(value)) return cell(displayValue ?? value);
-  if (!listing.link) return cell(null);
+function viewMoreDetailsCell(listing) {
   const td = document.createElement("td");
-  td.className = "px-3 py-3 text-ink";
-  td.appendChild(makeLoadDetailsButton(listing));
+  td.className = "px-3 py-3 text-right";
+  td.appendChild(makeViewMoreDetailsButton(listing));
   return td;
-}
-
-function furnishingStatusCell(listing) {
-  if (listing.listingType === "sale") return detailCell(listing, listing.status);
-  const normalized = normalizeFurnishing(listing.furnishing);
-  return detailCell(listing, listing.furnishing, normalized || listing.furnishing);
 }
 
 async function loadAndRender() {
@@ -406,6 +535,13 @@ resetFiltersBtn.addEventListener("click", () => {
   activeFilters.furnishing = null;
   activeFilters.tenant = null;
   renderAll();
+});
+
+const { backdrop: detailsModalBackdrop, closeBtn: detailsModalCloseBtn } = detailsModal();
+detailsModalBackdrop.addEventListener("click", closeDetailsModal);
+detailsModalCloseBtn.addEventListener("click", closeDetailsModal);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeDetailsModal();
 });
 
 loadAndRender();
