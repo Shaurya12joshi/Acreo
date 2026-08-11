@@ -8,10 +8,11 @@ const sourceFiltersEl = document.getElementById("source-filters");
 const bhkFiltersEl = document.getElementById("bhk-filters");
 const furnishingFiltersEl = document.getElementById("furnishing-filters");
 const tenantFiltersEl = document.getElementById("tenant-filters");
+const seenFiltersEl = document.getElementById("seen-filters");
 const resetFiltersBtn = document.getElementById("reset-filters-btn");
 
 let allListings = [];
-const activeFilters = { source: null, bhk: null, furnishing: null, tenant: null };
+const activeFilters = { source: null, bhk: null, furnishing: null, tenant: null, seen: null };
 
 const SOURCE_OPTIONS = [
   { value: "magicbricks", label: "MagicBricks" },
@@ -21,6 +22,10 @@ const SOURCE_OPTIONS = [
 const BHK_OPTIONS = ["1", "2", "3", "4", "5"].map((v) => ({ label: `${v} BHK`, value: v }));
 const FURNISHING_OPTIONS = ["Furnished", "Semi-Furnished", "Unfurnished"].map((v) => ({ label: v, value: v }));
 const TENANT_OPTIONS = ["Bachelors", "Family", "Bachelors/Family"].map((v) => ({ label: v, value: v }));
+const SEEN_OPTIONS = [
+  { value: "seen", label: "Seen" },
+  { value: "unseen", label: "Not Seen" },
+];
 
 function getBhk(listing) {
   const match = listing.title?.match(/(\d+)\s*BHK/i);
@@ -83,8 +88,8 @@ function parsePriceValue(str) {
 
   const rest = cleaned.slice(numMatch.index + numMatch[0].length).toLowerCase();
   let multiplier = 1;
-  if (/^\s*(cr|crore)\b/.test(rest)) multiplier = 1e7;
-  else if (/^\s*(l|lac|lakh)\b/.test(rest)) multiplier = 1e5;
+  if (/^\s*(crores?|cr)\b/.test(rest)) multiplier = 1e7;
+  else if (/^\s*(lakhs?|lacs?|l)\b/.test(rest)) multiplier = 1e5;
   else if (/^\s*k\b/.test(rest)) multiplier = 1e3;
 
   return num * multiplier;
@@ -110,6 +115,8 @@ function applyFilters(listings) {
     if (activeFilters.bhk && getBhk(listing) !== activeFilters.bhk) return false;
     if (activeFilters.furnishing && normalizeFurnishing(listing.furnishing) !== activeFilters.furnishing) return false;
     if (activeFilters.tenant && normalizeTenant(listing["tenent-preffered"]) !== activeFilters.tenant) return false;
+    if (activeFilters.seen === "seen" && !listing.seen) return false;
+    if (activeFilters.seen === "unseen" && listing.seen) return false;
     return true;
   });
 }
@@ -154,6 +161,7 @@ const FILTER_VALUE_GETTERS = {
   bhk: (listing) => getBhk(listing),
   furnishing: (listing) => normalizeFurnishing(listing.furnishing),
   tenant: (listing) => normalizeTenant(listing["tenent-preffered"]),
+  seen: (listing) => (listing.seen ? "seen" : "unseen"),
 };
 
 function getCountsForGroup(groupKey) {
@@ -180,11 +188,13 @@ function renderFilters() {
   const bhkCounts = getCountsForGroup("bhk");
   const furnishingCounts = getCountsForGroup("furnishing");
   const tenantCounts = getCountsForGroup("tenant");
+  const seenCounts = getCountsForGroup("seen");
 
   renderFilterGroup(sourceFiltersEl, "source", SOURCE_OPTIONS, (value) => (sourceCounts[value] || 0) === 0);
   renderFilterGroup(bhkFiltersEl, "bhk", BHK_OPTIONS, (value) => (bhkCounts[value] || 0) === 0);
   renderFilterGroup(furnishingFiltersEl, "furnishing", FURNISHING_OPTIONS, (value) => (furnishingCounts[value] || 0) === 0);
   renderFilterGroup(tenantFiltersEl, "tenant", TENANT_OPTIONS, (value) => (tenantCounts[value] || 0) === 0);
+  renderFilterGroup(seenFiltersEl, "seen", SEEN_OPTIONS, (value) => (seenCounts[value] || 0) === 0);
 }
 
 function render(listings) {
@@ -216,7 +226,9 @@ function renderAll() {
 
 function buildRow(listing, index) {
   const tr = document.createElement("tr");
-  tr.className = "border-b border-sand last:border-0 odd:bg-surface even:bg-cream/40 hover:bg-teal-soft/40 transition-colors";
+  tr.className = `border-b border-sand last:border-0 hover:bg-teal-soft/40 transition-colors ${
+    listing.seen ? "opacity-70 bg-cream/60" : "odd:bg-surface even:bg-cream/40"
+  }`;
 
   tr.appendChild(titleCell(listing));
   tr.appendChild(priceCell(listing));
@@ -240,11 +252,25 @@ function cell(text, extraClass = "") {
 function titleCell(listing) {
   const td = document.createElement("td");
   td.className = "px-3 py-3 font-medium text-ink";
+
+  const wrap = document.createElement("div");
+  wrap.className = "flex items-start gap-2";
+
   const span = document.createElement("span");
   span.className = "line-clamp-2";
   span.textContent = listing.title || "—";
   if (listing.title) span.title = listing.title;
-  td.appendChild(span);
+  wrap.appendChild(span);
+
+  if (listing.seen) {
+    const badge = document.createElement("span");
+    badge.className =
+      "shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted bg-sand rounded-full px-2 py-0.5 mt-0.5";
+    badge.textContent = "Seen";
+    wrap.appendChild(badge);
+  }
+
+  td.appendChild(wrap);
   return td;
 }
 
@@ -307,7 +333,10 @@ function linkCell(link) {
   a.target = "_blank";
   a.rel = "noopener noreferrer";
   a.className = "text-amber text-xs font-medium hover:underline";
-  a.textContent = "View";
+  a.textContent = "Open Link";
+  a.addEventListener("click", () => {
+    chrome.runtime.sendMessage({ type: "LISTING_VIEWED", url: link });
+  });
   td.appendChild(a);
   return td;
 }
@@ -367,10 +396,14 @@ async function fetchDetailFields(listing) {
   if (listing.source === "nobroker") {
     const parsed = parseNoBrokerDetail(doc);
     return {
-      furnishing: parsed.furnishing,
-      floor: parsed.floor,
-      bathroom: parsed.bathroom,
-      gated: parsed.gated,
+      furnishing: parsed.furnishing || findValueNearLabel(doc, "Furnishing Status") || findValueNearLabel(doc, "Furnishing"),
+      floor: parsed.floor || findValueNearLabel(doc, "No. of Floors") || findValueNearLabel(doc, "Floor"),
+      bathroom: parsed.bathroom || findValueNearLabel(doc, "Bathroom"),
+      gated:
+        parsed.gated ||
+        findValueNearLabel(doc, "Gated Security") ||
+        findValueNearLabel(doc, "Gated Community") ||
+        findValueNearLabel(doc, "Gated"),
       tenant: null,
     };
   }
@@ -398,7 +431,12 @@ const DETAIL_FIELDS = [
     getValue: (l) => normalizeTenant(l["tenent-preffered"]) || l["tenent-preffered"],
   },
   { key: "floor", label: "Floor", getValue: (l) => l.floor },
-  { key: "gated", label: "Gated", getValue: (l) => l.gated },
+  {
+    key: "gated",
+    label: "Gated Community",
+    getValue: (l) => l.gated,
+    hint: "Whether the property is inside a gated complex — a compound with a boundary wall and controlled/security entry — rather than a standalone building open to the street.",
+  },
 ];
 
 function detailsAlreadyLoaded(listing) {
@@ -421,14 +459,32 @@ function closeDetailsModal() {
   root.style.display = "none";
 }
 
-function detailRow(label, value) {
+function detailRow(label, value, hint) {
   const tr = document.createElement("tr");
   tr.className = "border-b border-sand last:border-0";
 
   const th = document.createElement("th");
   th.scope = "row";
-  th.className = "text-left text-xs font-semibold uppercase tracking-wide text-muted px-3 py-3 w-1/3";
-  th.textContent = label;
+  th.className = "text-left text-xs font-semibold uppercase tracking-wide text-muted px-3 py-3 w-1/3 align-top";
+
+  const labelWrap = document.createElement("span");
+  labelWrap.className = "inline-flex items-center gap-1";
+
+  const labelText = document.createElement("span");
+  labelText.textContent = label;
+  labelWrap.appendChild(labelText);
+
+  if (hint) {
+    const info = document.createElement("span");
+    info.textContent = "ⓘ";
+    info.title = hint;
+    info.setAttribute("role", "img");
+    info.setAttribute("aria-label", hint);
+    info.className = "normal-case font-normal text-muted cursor-help";
+    labelWrap.appendChild(info);
+  }
+
+  th.appendChild(labelWrap);
 
   const td = document.createElement("td");
   td.className = "text-sm text-ink px-3 py-3";
@@ -448,8 +504,8 @@ function openDetailsModal(listing) {
   const { title, body } = detailsModal();
   title.textContent = listing.title || "Listing details";
   body.innerHTML = "";
-  DETAIL_FIELDS.forEach(({ label, getValue }) => {
-    body.appendChild(detailRow(label, getValue(listing)));
+  DETAIL_FIELDS.forEach(({ label, getValue, hint }) => {
+    body.appendChild(detailRow(label, getValue(listing), hint));
   });
   showDetailsModal();
 }
@@ -534,6 +590,7 @@ resetFiltersBtn.addEventListener("click", () => {
   activeFilters.bhk = null;
   activeFilters.furnishing = null;
   activeFilters.tenant = null;
+  activeFilters.seen = null;
   renderAll();
 });
 

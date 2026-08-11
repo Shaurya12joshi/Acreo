@@ -21,7 +21,8 @@ function extractListingData(cardEl) {
   const heading = cardEl.querySelector(".tupleNew__propType")?.textContent.trim();
   if (!heading) return null;
 
-  const link = cardEl.querySelector("a.tupleNew__propertyHeading")?.getAttribute("href");
+  const rawLink = cardEl.querySelector("a.tupleNew__propertyHeading")?.getAttribute("href");
+  const link = rawLink ? new URL(rawLink, window.location.origin).href : null;
   const priceAmount = cardEl.querySelector(".tupleNew__priceValWrap span")?.textContent.trim();
   const priceSubLine = cardEl.querySelector(".tupleNew__priceAndPerSqftWrap .tupleNew__perSqftWrap.ellipsis")?.textContent.trim();
 
@@ -79,3 +80,5 @@ function startObserving() {
 }
 
 startObserving();
+
+chrome.runtime.sendMessage({ type: "LISTING_VIEWED", url: window.location.href });

@@ -77,3 +77,5 @@ function startObserving() {
 }
 
 startObserving();
+
+chrome.runtime.sendMessage({ type: "LISTING_VIEWED", url: window.location.href });

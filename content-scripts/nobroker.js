@@ -29,6 +29,12 @@ function extractLabeledFields(cardEl) {
   return fields;
 }
 
+function extractPriceBox(cardEl) {
+  const box = cardEl.querySelector('[id="minDeposit"]');
+  if (!box) return null;
+  return box.querySelector(".font-semi-bold.heading-6")?.textContent.trim() || null;
+}
+
 function extractListingData(cardEl) {
   const id = cardEl.id;
   const titleLink = cardEl.querySelector("h2 a");
@@ -39,17 +45,28 @@ function extractListingData(cardEl) {
   const link = href ? new URL(href, window.location.origin).href : null;
 
   const priceMeta = cardEl.querySelector('meta[itemprop="price"]')?.getAttribute("content");
-  const priceAmount = priceMeta ? `₹${priceMeta.replace("INR", "").trim()}` : null;
+  let priceAmount = priceMeta ? `₹${priceMeta.replace("INR", "").trim()}` : null;
 
   const overview = extractOverviewBoxes(cardEl);
   const labeled = extractLabeledFields(cardEl);
+  const boxAmount = extractPriceBox(cardEl);
+  const listingType = detectListingType(title);
+
+  if (!priceAmount && boxAmount) {
+    priceAmount = boxAmount;
+  }
+
+  let priceLabel = null;
+  if (overview["Deposit"]) {
+    priceLabel = `Deposit ${overview["Deposit"]}`;
+  }
 
   return {
     id,
     title,
-    listingType: detectListingType(title),
+    listingType,
     priceAmount,
-    priceLabel: overview["Deposit"] ? `Deposit ${overview["Deposit"]}` : null,
+    priceLabel,
     link,
     "carpet-area": overview["Builtup"],
     furnishing: labeled["Furnishing"],
@@ -84,3 +101,5 @@ function startObserving() {
 }
 
 startObserving();
+
+chrome.runtime.sendMessage({ type: "LISTING_VIEWED", url: window.location.href });
