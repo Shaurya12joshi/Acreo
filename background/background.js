@@ -8,7 +8,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-
 let storageQueue = Promise.resolve();
 function enqueueStorageOp(op) {
   storageQueue = storageQueue.then(op).catch((err) => console.error("ACREO storage op failed:", err));

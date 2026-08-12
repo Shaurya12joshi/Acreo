@@ -128,6 +128,7 @@ function getSecurityDepositValue(listing) {
   return null;
 }
 function getSecurityDepositDisplay(listing) {
+  if (listing?.source === "magicbricks") return null;
   const category = getListingCategory(listing);
   if (category === "Sale" || category === "Land") return null;
   const amount = getSecurityDepositValue(listing);
@@ -498,6 +499,100 @@ function parse99acresDetail(doc, html) {
   };
 }
 
+function extractMagicbricksState(html) {
+  const marker = "window.SERVER_PRELOADED_STATE_DETAILS = ";
+  const start = html.indexOf(marker);
+  if (start === -1) return null;
+
+  const jsonStart = start + marker.length;
+  let depth = 0;
+  let inStr = false;
+  let i = jsonStart;
+  for (; i < html.length; i++) {
+    const ch = html[i];
+    if (inStr) {
+      if (ch === "\\") {
+        i++;
+        continue;
+      }
+      if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') {
+      inStr = true;
+      continue;
+    }
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) {
+        i++;
+        break;
+      }
+    }
+  }
+
+  try {
+    return JSON.parse(html.slice(jsonStart, i));
+  } catch (err) {
+    return null;
+  }
+}
+
+function parseMagicbricksDetail(html) {
+  const state = extractMagicbricksState(html);
+  const detailBean = state?.propertyDetailInfoBeanData?.propertyDetail?.detailBean;
+  if (!detailBean) return {};
+
+  const tenant = detailBean.tenantDescription || null;
+  const amenitySource = detailBean.amenityMap || detailBean.amenityExternalMap || {};
+  const amenities = Object.values(amenitySource);
+  const gated = amenities.some((a) => /gated/i.test(a)) ? "Yes" : null;
+  const security = amenities.some((a) => /security|cctv/i.test(a)) ? "Yes" : null;
+  const projectLink = detailBean.projectLink || null;
+
+  return { tenant, gated, security, projectLink };
+}
+
+const PROJECT_USP_KEYS = ["projectUsp", "psmadvantage", "keyHighlights", "amenities", "features", "usp", "advantages"];
+
+function findGatedInProjectState(node, depth = 0) {
+  if (!node || depth > 6) return false;
+  if (Array.isArray(node)) {
+    return node.some((item) => findGatedInProjectState(item, depth + 1));
+  }
+  if (typeof node === "object") {
+    return Object.entries(node).some(([key, value]) => {
+      if (typeof value === "string" && PROJECT_USP_KEYS.some((k) => key.toLowerCase().includes(k.toLowerCase()))) {
+        return /gated/i.test(value);
+      }
+      if (Array.isArray(value) && PROJECT_USP_KEYS.some((k) => key.toLowerCase().includes(k.toLowerCase()))) {
+        return value.some((v) => typeof v === "string" && /gated/i.test(v));
+      }
+      return findGatedInProjectState(value, depth + 1);
+    });
+  }
+  return false;
+}
+
+async function fetchGatedFromProjectPage(projectLink) {
+  if (!projectLink) return null;
+  try {
+    const url = `https://www.magicbricks.com/${projectLink}`;
+    const response = await fetch(url);
+    const html = await response.text();
+    const doc = new DOMParser().parseFromString(html, "text/html");
+
+    const state = extractMagicbricksState(html);
+    if (state && findGatedInProjectState(state)) return "Yes";
+
+    return findValueNearLabel(doc, "Gated Community") || findValueNearLabel(doc, "Gated") || null;
+  } catch (err) {
+    console.warn("ACREO: failed to fetch project page for gated status", err);
+    return null;
+  }
+}
+
 async function fetchDetailFields(listing) {
   const response = await fetch(listing.link);
   const html = await response.text();
@@ -522,6 +617,21 @@ async function fetchDetailFields(listing) {
       bathroom: parsed.bathroom,
       gated: parsed.gated,
       tenant: parsed.tenant,
+    };
+  }
+  if (listing.source === "magicbricks") {
+    const parsed = parseMagicbricksDetail(html);
+    let gated = parsed.gated || findValueNearLabel(doc, "Gated Community") || findValueNearLabel(doc, "Gated");
+    if (!gated && parsed.projectLink) {
+      gated = await fetchGatedFromProjectPage(parsed.projectLink);
+    }
+    return {
+      furnishing: findValueNearLabel(doc, "Furnished Status") || findValueNearLabel(doc, "Furnishing"),
+      floor: findValueNearLabel(doc, "Floor"),
+      tenant: parsed.tenant || findValueNearLabel(doc, "Tenant Preferred") || findValueNearLabel(doc, "Available For"),
+      bathroom: findValueNearLabel(doc, "Bathroom"),
+      gated,
+      security: parsed.security,
     };
   }
   return {
@@ -571,11 +681,18 @@ const DETAIL_FIELDS = [
     hint: "Whether the property is inside a gated complex — a compound with a boundary wall and controlled/security entry — rather than a standalone building open to the street.",
     appliesTo: () => true,
   },
+  {
+    key: "security",
+    label: "Security",
+    getValue: (l) => l.security,
+    hint: "Whether the source lists a security guard/CCTV amenity for this specific listing. This is a separate amenity tag from Gated Community and does not confirm the property is gated.",
+    appliesTo: (category, listing) => listing?.source === "magicbricks",
+  },
 ];
 
 function getApplicableDetailFields(listing) {
   const category = getListingCategory(listing);
-  return DETAIL_FIELDS.filter((field) => field.appliesTo(category));
+  return DETAIL_FIELDS.filter((field) => field.appliesTo(category, listing));
 }
 
 function detailsAlreadyLoaded(listing) {
@@ -627,7 +744,14 @@ function detailRow(label, value, hint) {
 
   const td = document.createElement("td");
   td.className = "text-sm text-ink px-3 py-3";
-  td.textContent = hasValue(value) ? value : "—";
+  if (hasValue(value)) {
+    td.textContent = value;
+  } else if (value === "Not found") {
+    td.textContent = "Not listed by source";
+    td.className += " text-muted italic";
+  } else {
+    td.textContent = "—";
+  }
 
   tr.appendChild(th);
   tr.appendChild(td);
@@ -686,6 +810,7 @@ function makeViewMoreDetailsButton(listing) {
         floor: details.floor || listing.floor || "Not found",
         bathroom: details.bathroom || listing.bathroom || "Not found",
         gated: details.gated || listing.gated || "Not found",
+        security: details.security || listing.security || "Not found",
         "tenent-preffered": details.tenant || listing["tenent-preffered"] || "Not found",
         securityDeposit: details.securityDeposit || listing.securityDeposit || null,
       };
@@ -725,9 +850,11 @@ chrome.storage.onChanged.addListener((changes, area) => {
   }
 });
 
+const EMPTY_CELL = "-";
+
 const EXPORT_COLUMNS = [
   { header: "Title", getValue: (l) => l.title || "" },
-  { header: "Listing Type", getValue: (l) => (l.listingType === "rent" ? "Rent" : l.listingType === "sale" ? "Sale" : "") },
+  { header: "Listing Type", getValue: (l) => getListingCategory(l) || "" },
   { header: "Price", getValue: (l) => l.priceAmount || "" },
   {
     header: "Deposit",
@@ -750,7 +877,8 @@ function exportListingsToExcel(listings) {
   const rows = listings.map((listing) => {
     const row = {};
     EXPORT_COLUMNS.forEach(({ header, getValue }) => {
-      row[header] = getValue(listing);
+      const value = getValue(listing);
+      row[header] = value === "" || value === null || value === undefined ? EMPTY_CELL : value;
     });
     return row;
   });
@@ -765,8 +893,11 @@ function exportListingsToExcel(listings) {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Listings");
 
-  const date = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(workbook, `acreo-listings-${date}.xlsx`);
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const time = `${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+  XLSX.writeFile(workbook, `Acreo-${date}-${time}.xlsx`);
 }
 
 exportBtn.addEventListener("click", () => {

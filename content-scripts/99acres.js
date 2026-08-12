@@ -161,7 +161,8 @@ function scrapeNewListings() {
     if (!cardEl.id || seenCardIds.has(cardEl.id)) return;
 
     const data = extractListingData(cardEl);
-    if (!data) return; 
+    if (!data) return;
+
     seenCardIds.add(cardEl.id);
     freshResults.push(data);
   });
@@ -190,7 +191,6 @@ function startObserving() {
     attributes: true,
     characterData: true,
   });
-
   setInterval(scheduleScan, 1500);
 
   scrapeNewListings();

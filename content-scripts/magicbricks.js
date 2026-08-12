@@ -35,11 +35,11 @@ function extractSecurityDeposit(cardEl) {
   const scopes = [cardEl, listWrapper].filter(Boolean);
 
   for (const scope of scopes) {
-    const rows = scope.querySelectorAll(".mb-srp__card_breakup__row");
+    const rows = scope.querySelectorAll(".mb-srp__card_breakup_row");
     for (const row of rows) {
-      const label = row.querySelector(".mb-srp__card_breakup__row--label")?.textContent.trim();
+      const label = row.querySelector(".mb-srp__card_breakup_row--label")?.textContent.trim();
       if (label && label.toLowerCase() === "security deposit") {
-        const valueEl = row.querySelector(".mb-srp__card_breakup__row--value");
+        const valueEl = row.querySelector(".mb-srp__card_breakup_row--value");
         const amount = valueEl?.textContent.replace(/\s+/g, " ").trim().replace(/₹\s+/, "₹");
         return amount || null;
       }
