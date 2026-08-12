@@ -44,7 +44,10 @@ function getPropertyType(listing) {
   const t = listing.title?.toLowerCase() || "";
   if (t.includes("villa")) return "Villa";
   if (t.includes("plot") || t.includes("land")) return "Plot/Land";
+  if (t.includes("builder floor")) return "Independent House";
   if (t.includes("independent house") || t.includes(" house")) return "Independent House";
+  if (t.includes("penthouse")) return "Apartment";
+  if (t.includes("studio")) return "Apartment";
   if (t.includes("apartment") || t.includes("flat")) return "Apartment";
   return null;
 }
@@ -465,11 +468,33 @@ function parseNoBrokerDetail(html) {
   };
 }
 
-function parse99acresDetail(doc) {
+function parse99acresDetail(doc, html) {
+  const gatedFromJSON = (() => {
+    const marker = "window.__initialData__=";
+    const start = html.indexOf(marker);
+    if (start === -1) return null;
+    const jsonStart = start + marker.length;
+    const endMarkerIdx = html.indexOf("window.__masked__", jsonStart);
+    const jsonEnd = endMarkerIdx === -1 ? html.length : html.lastIndexOf(";", endMarkerIdx);
+    try {
+      const data = JSON.parse(html.slice(jsonStart, jsonEnd === -1 ? undefined : jsonEnd).trim());
+      const propData = data?.pd?.pageData?.propertyDetails?.prop_data;
+      const flag = propData?.Within_Gated_Community ?? data?.pd?.pageData?.specification?.withinGatedCommunity;
+      if (flag === "Y") return "Yes";
+      if (flag === "N") return "No";
+      return null;
+    } catch (err) {
+      return null;
+    }
+  })();
+
   return {
-    furnishing: doc.querySelector("#furnishingLabel")?.textContent.trim(),
-    floor: doc.querySelector("#floorNumLabel")?.textContent.trim(),
+    furnishing: doc.querySelector('div[data-label="FURNISHING"] h2')?.textContent.trim(),
+    floor: doc.querySelector("#floorNumLabel")?.textContent.replace(/\s+/g, " ").trim(),
     tenant: doc.querySelector("#availableForLabel")?.textContent.trim(),
+    bathroom: doc.querySelector("#bathroomNum")?.textContent.replace(/[^0-9]/g, "").trim(),
+    securityDeposit: doc.querySelector("#Deposit_Value")?.textContent.trim(),
+    gated: gatedFromJSON,
   };
 }
 
@@ -479,13 +504,14 @@ async function fetchDetailFields(listing) {
   const doc = new DOMParser().parseFromString(html, "text/html");
 
   if (listing.source === "99acres") {
-    const parsed = parse99acresDetail(doc);
+    const parsed = parse99acresDetail(doc, html);
     return {
       furnishing: parsed.furnishing || findValueNearLabel(doc, "Furnishing"),
       floor: parsed.floor || findValueNearLabel(doc, "Floor"),
-      tenant: parsed.tenant || findValueNearLabel(doc, "Available For"),
-      bathroom: null,
-      gated: findValueNearLabel(doc, "Gated"),
+      tenant: parsed.tenant || findValueNearLabel(doc, "Available For") || findValueNearLabel(doc, "Tenant Preferred"),
+      bathroom: parsed.bathroom || null,
+      gated: parsed.gated || findValueNearLabel(doc, "Gated Community") || findValueNearLabel(doc, "Gated"),
+      securityDeposit: parsed.securityDeposit || findValueNearLabel(doc, "Security Deposit"),
     };
   }
   if (listing.source === "nobroker") {
@@ -553,7 +579,7 @@ function getApplicableDetailFields(listing) {
 }
 
 function detailsAlreadyLoaded(listing) {
-  return getApplicableDetailFields(listing).some(({ key }) => hasValue(listing[key]));
+  return getApplicableDetailFields(listing).every(({ key }) => hasValue(listing[key]));
 }
 
 function detailsModal() {
@@ -661,11 +687,16 @@ function makeViewMoreDetailsButton(listing) {
         bathroom: details.bathroom || listing.bathroom || "Not found",
         gated: details.gated || listing.gated || "Not found",
         "tenent-preffered": details.tenant || listing["tenent-preffered"] || "Not found",
+        securityDeposit: details.securityDeposit || listing.securityDeposit || null,
       };
       await persistListing(updated);
       openDetailsModal(updated);
     } catch (err) {
-      showDetailsLoadingState("Couldn't load details — try again.");
+      showDetailsLoadingState(
+        listing.source === "99acres"
+          ? "Couldn't load details — open the listing link once, then try again."
+          : "Couldn't load details — try again."
+      );
     } finally {
       btn.textContent = "View More Details";
       btn.disabled = false;
