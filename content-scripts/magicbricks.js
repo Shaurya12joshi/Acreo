@@ -30,12 +30,32 @@ function buildPropertyUrl(cardEl) {
   return `https://www.magicbricks.com/propertyDetails/property&id=${encodedId}`;
 }
 
+function extractSecurityDeposit(cardEl) {
+  const listWrapper = cardEl.closest('[id^="cardid"]');
+  const scopes = [cardEl, listWrapper].filter(Boolean);
+
+  for (const scope of scopes) {
+    const rows = scope.querySelectorAll(".mb-srp__card_breakup__row");
+    for (const row of rows) {
+      const label = row.querySelector(".mb-srp__card_breakup__row--label")?.textContent.trim();
+      if (label && label.toLowerCase() === "security deposit") {
+        const valueEl = row.querySelector(".mb-srp__card_breakup__row--value");
+        const amount = valueEl?.textContent.replace(/\s+/g, " ").trim().replace(/₹\s+/, "₹");
+        return amount || null;
+      }
+    }
+  }
+
+  return null;
+}
+
 function extractListingData(cardEl) {
   const listWrapper = cardEl.closest('[id^="cardid"]');
   const id = listWrapper?.id;
   const title = cardEl.querySelector(".mb-srp__card--title")?.getAttribute("title")?.trim();
   const priceAmount = cardEl.querySelector(".mb-srp__card__price--amount")?.textContent.trim();
   const priceLabel = cardEl.querySelector(".mb-srp__card__price--other-charges")?.textContent.trim();
+  const securityDeposit = extractSecurityDeposit(cardEl);
 
   return {
     id,
@@ -43,6 +63,7 @@ function extractListingData(cardEl) {
     listingType: detectListingType(title),
     priceAmount,
     priceLabel,
+    securityDeposit,
     link: buildPropertyUrl(cardEl),
     ...extractSummaryFields(cardEl),
     source: "magicbricks",

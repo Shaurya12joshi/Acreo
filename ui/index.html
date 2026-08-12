@@ -16,6 +16,12 @@
         <p id="listing-count" class="text-sm text-muted mt-0.5">0 listings collected</p>
       </div>
       <button
+        id="export-btn"
+        class="text-sm text-muted hover:text-teal border border-sand hover:border-teal rounded-full px-4 py-2 transition-colors cursor-pointer"
+      >
+        Export to Excel
+      </button>
+      <button
         id="clear-btn"
         class="text-sm text-muted hover:text-amber border border-sand hover:border-amber rounded-full px-4 py-2 transition-colors cursor-pointer"
       >
@@ -27,6 +33,7 @@
   <main class="max-w-6xl mx-auto px-6 py-8">
 
     <div id="filters" class="hidden mb-6 flex flex-wrap items-center gap-x-8 gap-y-4">
+      <div id="property-type-filters" class="flex items-center gap-2 flex-wrap pr-8 border-r border-sand"></div>
       <div id="source-filters" class="flex items-center gap-2 flex-wrap"></div>
       <div id="bhk-filters" class="flex items-center gap-2 flex-wrap"></div>
       <div id="furnishing-filters" class="flex items-center gap-2 flex-wrap"></div>
@@ -92,6 +99,7 @@
     </div>
   </div>
 
+  <script src="vendor/xlsx.core.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

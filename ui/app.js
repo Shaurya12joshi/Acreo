@@ -3,7 +3,9 @@ const tableWrapper = document.getElementById("table-wrapper");
 const emptyState = document.getElementById("empty-state");
 const countLabel = document.getElementById("listing-count");
 const clearBtn = document.getElementById("clear-btn");
+const exportBtn = document.getElementById("export-btn");
 const filtersRow = document.getElementById("filters");
+const propertyTypeFiltersEl = document.getElementById("property-type-filters");
 const sourceFiltersEl = document.getElementById("source-filters");
 const bhkFiltersEl = document.getElementById("bhk-filters");
 const furnishingFiltersEl = document.getElementById("furnishing-filters");
@@ -12,8 +14,14 @@ const seenFiltersEl = document.getElementById("seen-filters");
 const resetFiltersBtn = document.getElementById("reset-filters-btn");
 
 let allListings = [];
-const activeFilters = { source: null, bhk: null, furnishing: null, tenant: null, seen: null };
+let currentFilteredListings = [];
+const activeFilters = { propertyType: null, source: null, bhk: null, furnishing: null, tenant: null, seen: null };
 
+const PROPERTY_TYPE_OPTIONS = [
+  { value: "Land", label: "Land" },
+  { value: "Sale", label: "Sale" },
+  { value: "Rent", label: "Rent" },
+];
 const SOURCE_OPTIONS = [
   { value: "magicbricks", label: "MagicBricks" },
   { value: "99acres", label: "99acres" },
@@ -41,6 +49,13 @@ function getPropertyType(listing) {
   return null;
 }
 
+function getListingCategory(listing) {
+  if (getPropertyType(listing) === "Plot/Land") return "Land";
+  if (listing.listingType === "rent") return "Rent";
+  if (listing.listingType === "sale") return "Sale";
+  return null;
+}
+
 function normalizeFurnishing(raw) {
   if (!raw) return null;
   const v = raw.toLowerCase();
@@ -58,7 +73,8 @@ function normalizeTenant(raw) {
   if (hasBachelor && hasFamily) return "Bachelors/Family";
   if (hasBachelor) return "Bachelors";
   if (hasFamily) return "Family";
-  if (v.includes("all")) return "Bachelors/Family";
+  if (v.includes("all") || v.includes("anyone")) return "Bachelors/Family";
+  if (v.includes("company")) return "Company";
   return null;
 }
 
@@ -95,6 +111,26 @@ function parsePriceValue(str) {
   return num * multiplier;
 }
 
+function extractDepositAmount(label) {
+  if (!label) return "";
+  const amountMatch = label.match(/₹\s*[\d,.]+(\s*(crores?|cr|lakhs?|lacs?|k))?/i);
+  if (amountMatch) return amountMatch[0].trim();
+  const stripped = label.replace(/^\s*(security\s+)?deposit\s*:?\s*/i, "").trim();
+  return stripped;
+}
+
+function getSecurityDepositValue(listing) {
+  if (listing.securityDeposit) return listing.securityDeposit;
+  if (listing.priceLabel) return extractDepositAmount(listing.priceLabel);
+  return null;
+}
+function getSecurityDepositDisplay(listing) {
+  const category = getListingCategory(listing);
+  if (category === "Sale" || category === "Land") return null;
+  const amount = getSecurityDepositValue(listing);
+  return `Security Deposit: ${amount || "NA"}`;
+}
+
 function computePricePerArea(listing) {
   const price = parsePriceValue(listing.priceAmount);
   const area = parseNumeric(getAreaText(listing));
@@ -111,6 +147,7 @@ function formatPricePerArea(listing) {
 
 function applyFilters(listings) {
   return listings.filter((listing) => {
+    if (activeFilters.propertyType && getListingCategory(listing) !== activeFilters.propertyType) return false;
     if (activeFilters.source && listing.source !== activeFilters.source) return false;
     if (activeFilters.bhk && getBhk(listing) !== activeFilters.bhk) return false;
     if (activeFilters.furnishing && normalizeFurnishing(listing.furnishing) !== activeFilters.furnishing) return false;
@@ -157,6 +194,7 @@ function renderFilterGroup(container, groupKey, options, isDisabledFn) {
 }
 
 const FILTER_VALUE_GETTERS = {
+  propertyType: (listing) => getListingCategory(listing),
   source: (listing) => listing.source,
   bhk: (listing) => getBhk(listing),
   furnishing: (listing) => normalizeFurnishing(listing.furnishing),
@@ -184,12 +222,14 @@ function renderFilters() {
   }
   filtersRow.classList.remove("hidden");
 
+  const propertyTypeCounts = getCountsForGroup("propertyType");
   const sourceCounts = getCountsForGroup("source");
   const bhkCounts = getCountsForGroup("bhk");
   const furnishingCounts = getCountsForGroup("furnishing");
   const tenantCounts = getCountsForGroup("tenant");
   const seenCounts = getCountsForGroup("seen");
 
+  renderFilterGroup(propertyTypeFiltersEl, "propertyType", PROPERTY_TYPE_OPTIONS, (value) => (propertyTypeCounts[value] || 0) === 0);
   renderFilterGroup(sourceFiltersEl, "source", SOURCE_OPTIONS, (value) => (sourceCounts[value] || 0) === 0);
   renderFilterGroup(bhkFiltersEl, "bhk", BHK_OPTIONS, (value) => (bhkCounts[value] || 0) === 0);
   renderFilterGroup(furnishingFiltersEl, "furnishing", FURNISHING_OPTIONS, (value) => (furnishingCounts[value] || 0) === 0);
@@ -199,6 +239,7 @@ function renderFilters() {
 
 function render(listings) {
   const filtered = applyFilters(listings);
+  currentFilteredListings = filtered;
   countLabel.textContent = `${filtered.length} of ${listings.length} listings`;
 
   if (filtered.length === 0) {
@@ -286,22 +327,27 @@ function priceCell(listing) {
   amount.textContent = listing.priceAmount || "—";
   topRow.appendChild(amount);
 
-  if (listing.listingType === "rent" || listing.listingType === "sale") {
+  const category = getListingCategory(listing);
+  if (category) {
     const tag = document.createElement("span");
-    const isRent = listing.listingType === "rent";
-    tag.className = isRent
-      ? "text-[10px] font-semibold uppercase tracking-wide text-teal bg-teal-soft rounded-full px-2 py-0.5"
-      : "text-[10px] font-semibold uppercase tracking-wide text-amber bg-amber-soft rounded-full px-2 py-0.5";
-    tag.textContent = isRent ? "Rent" : "Sale";
+    const tagStyles = {
+      Rent: "text-teal bg-teal-soft",
+      Sale: "text-amber bg-amber-soft",
+      Land: "text-moss bg-moss-soft",
+    };
+    tag.className = `text-[10px] font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 ${tagStyles[category]}`;
+    tag.textContent = category;
     topRow.appendChild(tag);
   }
 
-  const label = document.createElement("div");
-  label.className = "text-xs text-muted mt-0.5";
-  label.textContent = listing.priceLabel || "";
-
+  const depositText = getSecurityDepositDisplay(listing);
   td.appendChild(topRow);
-  td.appendChild(label);
+  if (depositText) {
+    const label = document.createElement("div");
+    label.className = "text-xs text-muted mt-0.5";
+    label.textContent = depositText;
+    td.appendChild(label);
+  }
   return td;
 }
 
@@ -341,6 +387,49 @@ function linkCell(link) {
   return td;
 }
 
+function extractBalancedJSON(text, key) {
+  const marker = `"${key}":{`;
+  const markerStart = text.indexOf(marker);
+  if (markerStart === -1) return null;
+
+  const braceStart = markerStart + marker.length - 1; 
+  let depth = 0;
+  let inString = false;
+  let i = braceStart;
+
+  for (; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (ch === "\\") {
+        i++;
+        continue;
+      }
+      if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+      continue;
+    }
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) {
+        i++;
+        break;
+      }
+    }
+  }
+
+  const jsonStr = text.slice(braceStart, i);
+  try {
+    return JSON.parse(jsonStr);
+  } catch (err) {
+    console.warn("ACREO: failed to parse NoBroker listingDetails JSON", err);
+    return null;
+  }
+}
+
 function findValueNearLabel(doc, labelText) {
   const candidates = Array.from(doc.querySelectorAll("body *")).filter(
     (el) => el.children.length === 0 && el.textContent.trim() === labelText
@@ -354,19 +443,25 @@ function findValueNearLabel(doc, labelText) {
   return null;
 }
 
-function parseNoBrokerDetail(doc) {
-  const boxes = doc.querySelectorAll(".nb__3ocPe");
-  const fields = {};
-  boxes.forEach((box) => {
-    const label = box.querySelector("#overviewTitle")?.textContent.trim();
-    const value = box.querySelector(".font-semi-bold")?.textContent.trim();
-    if (label && value) fields[label] = value;
-  });
+function parseNoBrokerDetail(html) {
+  const details = extractBalancedJSON(html, "detailsData");
+  if (!details) return {};
+
+  const floor =
+    details.floor != null && details.totalFloor != null
+      ? `${details.floor}/${details.totalFloor}`
+      : details.floor != null
+      ? String(details.floor)
+      : null;
+
+  const tenant = details.tenantTypeDesc || details.leaseType || null;
+
   return {
-    furnishing: fields["Furnishing Status"],
-    floor: fields["No. of Floors"],
-    bathroom: fields["Bathroom"],
-    gated: fields["Gated Security"],
+    furnishing: details.furnishingDesc || details.furnishing || null,
+    floor,
+    bathroom: details.bathroom != null ? String(details.bathroom) : null,
+    gated: details.aea__?.GATED_SECURITY?.display_value ?? null,
+    tenant,
   };
 }
 
@@ -394,17 +489,13 @@ async function fetchDetailFields(listing) {
     };
   }
   if (listing.source === "nobroker") {
-    const parsed = parseNoBrokerDetail(doc);
+    const parsed = parseNoBrokerDetail(html);
     return {
-      furnishing: parsed.furnishing || findValueNearLabel(doc, "Furnishing Status") || findValueNearLabel(doc, "Furnishing"),
-      floor: parsed.floor || findValueNearLabel(doc, "No. of Floors") || findValueNearLabel(doc, "Floor"),
-      bathroom: parsed.bathroom || findValueNearLabel(doc, "Bathroom"),
-      gated:
-        parsed.gated ||
-        findValueNearLabel(doc, "Gated Security") ||
-        findValueNearLabel(doc, "Gated Community") ||
-        findValueNearLabel(doc, "Gated"),
-      tenant: null,
+      furnishing: parsed.furnishing,
+      floor: parsed.floor,
+      bathroom: parsed.bathroom,
+      gated: parsed.gated,
+      tenant: parsed.tenant,
     };
   }
   return {
@@ -423,24 +514,46 @@ async function persistListing(updated) {
 }
 
 const DETAIL_FIELDS = [
-  { key: "furnishing", label: "Furnishing", getValue: (l) => normalizeFurnishing(l.furnishing) || l.furnishing },
-  { key: "bathroom", label: "Bathroom", getValue: (l) => l.bathroom },
+  {
+    key: "furnishing",
+    label: "Furnishing",
+    getValue: (l) => normalizeFurnishing(l.furnishing) || l.furnishing,
+    appliesTo: (category) => category !== "Land",
+  },
+  {
+    key: "bathroom",
+    label: "Bathroom",
+    getValue: (l) => l.bathroom,
+    appliesTo: (category) => category !== "Land",
+  },
   {
     key: "tenent-preffered",
     label: "Tenant",
     getValue: (l) => normalizeTenant(l["tenent-preffered"]) || l["tenent-preffered"],
+    appliesTo: (category) => category === "Rent",
   },
-  { key: "floor", label: "Floor", getValue: (l) => l.floor },
+  {
+    key: "floor",
+    label: "Floor",
+    getValue: (l) => l.floor,
+    appliesTo: (category) => category !== "Land",
+  },
   {
     key: "gated",
     label: "Gated Community",
     getValue: (l) => l.gated,
     hint: "Whether the property is inside a gated complex — a compound with a boundary wall and controlled/security entry — rather than a standalone building open to the street.",
+    appliesTo: () => true,
   },
 ];
 
+function getApplicableDetailFields(listing) {
+  const category = getListingCategory(listing);
+  return DETAIL_FIELDS.filter((field) => field.appliesTo(category));
+}
+
 function detailsAlreadyLoaded(listing) {
-  return DETAIL_FIELDS.some(({ key }) => hasValue(listing[key]));
+  return getApplicableDetailFields(listing).some(({ key }) => hasValue(listing[key]));
 }
 
 function detailsModal() {
@@ -504,7 +617,7 @@ function openDetailsModal(listing) {
   const { title, body } = detailsModal();
   title.textContent = listing.title || "Listing details";
   body.innerHTML = "";
-  DETAIL_FIELDS.forEach(({ label, getValue, hint }) => {
+  getApplicableDetailFields(listing).forEach(({ label, getValue, hint }) => {
     body.appendChild(detailRow(label, getValue(listing), hint));
   });
   showDetailsModal();
@@ -581,11 +694,61 @@ chrome.storage.onChanged.addListener((changes, area) => {
   }
 });
 
+const EXPORT_COLUMNS = [
+  { header: "Title", getValue: (l) => l.title || "" },
+  { header: "Listing Type", getValue: (l) => (l.listingType === "rent" ? "Rent" : l.listingType === "sale" ? "Sale" : "") },
+  { header: "Price", getValue: (l) => l.priceAmount || "" },
+  {
+    header: "Deposit",
+    getValue: (l) => {
+      const category = getListingCategory(l);
+      if (category === "Sale" || category === "Land") return "NA";
+      return getSecurityDepositValue(l) || "NA";
+    },
+  },
+  { header: "Area", getValue: (l) => getAreaText(l) || "" },
+  { header: "Price/Area", getValue: (l) => formatPricePerArea(l) || "" },
+  { header: "Type", getValue: (l) => getPropertyType(l) || "" },
+  { header: "Source", getValue: (l) => l.source || "" },
+  { header: "Seen", getValue: (l) => (l.seen ? "Yes" : "No") },
+  ...DETAIL_FIELDS.map(({ label, getValue }) => ({ header: label, getValue: (l) => getValue(l) || "" })),
+  { header: "Link", getValue: (l) => l.link || "" },
+];
+
+function exportListingsToExcel(listings) {
+  const rows = listings.map((listing) => {
+    const row = {};
+    EXPORT_COLUMNS.forEach(({ header, getValue }) => {
+      row[header] = getValue(listing);
+    });
+    return row;
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(rows, { header: EXPORT_COLUMNS.map((c) => c.header) });
+
+  worksheet["!cols"] = EXPORT_COLUMNS.map(({ header }) => {
+    const longest = rows.reduce((max, row) => Math.max(max, String(row[header] ?? "").length), header.length);
+    return { wch: Math.min(Math.max(longest + 2, 10), 60) };
+  });
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Listings");
+
+  const date = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(workbook, `acreo-listings-${date}.xlsx`);
+}
+
+exportBtn.addEventListener("click", () => {
+  if (currentFilteredListings.length === 0) return;
+  exportListingsToExcel(currentFilteredListings);
+});
+
 clearBtn.addEventListener("click", async () => {
   await chrome.storage.local.set({ listings: [] });
 });
 
 resetFiltersBtn.addEventListener("click", () => {
+  activeFilters.propertyType = null;
   activeFilters.source = null;
   activeFilters.bhk = null;
   activeFilters.furnishing = null;

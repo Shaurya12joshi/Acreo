@@ -16,6 +16,15 @@ function extractOverviewBoxes(cardEl) {
   return fields;
 }
 
+function resolveAreaValue(overview) {
+  const knownLabels = ["Builtup", "Plot Area", "Land Area", "Super Builtup", "Carpet Area", "Carpet"];
+  for (const label of knownLabels) {
+    if (overview[label]) return overview[label];
+  }
+  const fallbackKey = Object.keys(overview).find((label) => /area|plot|builtup|carpet/i.test(label));
+  return fallbackKey ? overview[fallbackKey] : null;
+}
+
 function extractLabeledFields(cardEl) {
   const labels = cardEl.querySelectorAll(".heading-7.text-default-color");
   const fields = {};
@@ -60,6 +69,7 @@ function extractListingData(cardEl) {
   if (overview["Deposit"]) {
     priceLabel = `Deposit ${overview["Deposit"]}`;
   }
+  const securityDeposit = overview["Deposit"] || null;
 
   return {
     id,
@@ -67,8 +77,9 @@ function extractListingData(cardEl) {
     listingType,
     priceAmount,
     priceLabel,
+    securityDeposit,
     link,
-    "carpet-area": overview["Builtup"],
+    "carpet-area": resolveAreaValue(overview),
     furnishing: labeled["Furnishing"],
     "tenent-preffered": labeled["Preferred Tenants"],
     source: "nobroker",
