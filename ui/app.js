@@ -678,7 +678,7 @@ const DETAIL_FIELDS = [
     key: "gated",
     label: "Gated Community",
     getValue: (l) => l.gated,
-    hint: "Whether the property is inside a gated complex — a compound with a boundary wall and controlled/security entry — rather than a standalone building open to the street.",
+    hint: "Whether the property is inside a gated complex a compound with a boundary wall and controlled/security entry rather than a standalone building open to the street.",
     appliesTo: () => true,
   },
   {
