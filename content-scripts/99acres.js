@@ -162,7 +162,6 @@ function scrapeNewListings() {
 
     const data = extractListingData(cardEl);
     if (!data) return;
-
     seenCardIds.add(cardEl.id);
     freshResults.push(data);
   });

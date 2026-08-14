@@ -1,11 +1,13 @@
 const tableBody = document.getElementById("listings-body");
 const tableWrapper = document.getElementById("table-wrapper");
 const emptyState = document.getElementById("empty-state");
+const noMatchesState = document.getElementById("no-matches-state");
 const countLabel = document.getElementById("listing-count");
 const clearBtn = document.getElementById("clear-btn");
 const exportBtn = document.getElementById("export-btn");
 const filtersRow = document.getElementById("filters");
-const propertyTypeFiltersEl = document.getElementById("property-type-filters");
+const categoryFiltersEl = document.getElementById("category-filters");
+const typeFiltersEl = document.getElementById("type-filters");
 const sourceFiltersEl = document.getElementById("source-filters");
 const bhkFiltersEl = document.getElementById("bhk-filters");
 const furnishingFiltersEl = document.getElementById("furnishing-filters");
@@ -15,12 +17,16 @@ const resetFiltersBtn = document.getElementById("reset-filters-btn");
 
 let allListings = [];
 let currentFilteredListings = [];
-const activeFilters = { propertyType: null, source: null, bhk: null, furnishing: null, tenant: null, seen: null };
+const activeFilters = { category: null, type: null, source: null, bhk: null, furnishing: null, tenant: null, seen: null };
 
-const PROPERTY_TYPE_OPTIONS = [
-  { value: "Land", label: "Land" },
-  { value: "Sale", label: "Sale" },
+const CATEGORY_OPTIONS = [
+  { value: "Buy", label: "Buy" },
   { value: "Rent", label: "Rent" },
+];
+const TYPE_OPTIONS = [
+  { value: "Apartment", label: "Apartment" },
+  { value: "Land", label: "Land" },
+  { value: "Other", label: "Other" },
 ];
 const SOURCE_OPTIONS = [
   { value: "magicbricks", label: "MagicBricks" },
@@ -53,10 +59,16 @@ function getPropertyType(listing) {
 }
 
 function getListingCategory(listing) {
-  if (getPropertyType(listing) === "Plot/Land") return "Land";
   if (listing.listingType === "rent") return "Rent";
-  if (listing.listingType === "sale") return "Sale";
+  if (listing.listingType === "sale") return "Buy";
   return null;
+}
+
+function getListingKind(listing) {
+  const type = getPropertyType(listing);
+  if (type === "Plot/Land") return "Land";
+  if (type === "Apartment") return "Apartment";
+  return "Other";
 }
 
 function normalizeFurnishing(raw) {
@@ -129,8 +141,7 @@ function getSecurityDepositValue(listing) {
 }
 function getSecurityDepositDisplay(listing) {
   if (listing?.source === "magicbricks") return null;
-  const category = getListingCategory(listing);
-  if (category === "Sale" || category === "Land") return null;
+  if (getListingCategory(listing) === "Buy") return null;
   const amount = getSecurityDepositValue(listing);
   return `Security Deposit: ${amount || "NA"}`;
 }
@@ -151,7 +162,8 @@ function formatPricePerArea(listing) {
 
 function applyFilters(listings) {
   return listings.filter((listing) => {
-    if (activeFilters.propertyType && getListingCategory(listing) !== activeFilters.propertyType) return false;
+    if (activeFilters.category && getListingCategory(listing) !== activeFilters.category) return false;
+    if (activeFilters.type && getListingKind(listing) !== activeFilters.type) return false;
     if (activeFilters.source && listing.source !== activeFilters.source) return false;
     if (activeFilters.bhk && getBhk(listing) !== activeFilters.bhk) return false;
     if (activeFilters.furnishing && normalizeFurnishing(listing.furnishing) !== activeFilters.furnishing) return false;
@@ -198,7 +210,8 @@ function renderFilterGroup(container, groupKey, options, isDisabledFn) {
 }
 
 const FILTER_VALUE_GETTERS = {
-  propertyType: (listing) => getListingCategory(listing),
+  category: (listing) => getListingCategory(listing),
+  type: (listing) => getListingKind(listing),
   source: (listing) => listing.source,
   bhk: (listing) => getBhk(listing),
   furnishing: (listing) => normalizeFurnishing(listing.furnishing),
@@ -226,14 +239,16 @@ function renderFilters() {
   }
   filtersRow.classList.remove("hidden");
 
-  const propertyTypeCounts = getCountsForGroup("propertyType");
+  const categoryCounts = getCountsForGroup("category");
+  const typeCounts = getCountsForGroup("type");
   const sourceCounts = getCountsForGroup("source");
   const bhkCounts = getCountsForGroup("bhk");
   const furnishingCounts = getCountsForGroup("furnishing");
   const tenantCounts = getCountsForGroup("tenant");
   const seenCounts = getCountsForGroup("seen");
 
-  renderFilterGroup(propertyTypeFiltersEl, "propertyType", PROPERTY_TYPE_OPTIONS, (value) => (propertyTypeCounts[value] || 0) === 0);
+  renderFilterGroup(categoryFiltersEl, "category", CATEGORY_OPTIONS, (value) => (categoryCounts[value] || 0) === 0);
+  renderFilterGroup(typeFiltersEl, "type", TYPE_OPTIONS, (value) => (typeCounts[value] || 0) === 0);
   renderFilterGroup(sourceFiltersEl, "source", SOURCE_OPTIONS, (value) => (sourceCounts[value] || 0) === 0);
   renderFilterGroup(bhkFiltersEl, "bhk", BHK_OPTIONS, (value) => (bhkCounts[value] || 0) === 0);
   renderFilterGroup(furnishingFiltersEl, "furnishing", FURNISHING_OPTIONS, (value) => (furnishingCounts[value] || 0) === 0);
@@ -246,17 +261,21 @@ function render(listings) {
   currentFilteredListings = filtered;
   countLabel.textContent = `${filtered.length} of ${listings.length} listings`;
 
+  const hasAnyListings = listings.length > 0;
+
   if (filtered.length === 0) {
     tableWrapper.classList.add("hidden");
-    emptyState.classList.remove("hidden");
-    emptyState.innerHTML =
-      listings.length === 0
-        ? `<p class="font-display text-xl text-ink mb-2">No listings yet</p>
-         <p class="text-muted text-sm">Browse rental search results on MagicBricks, 99acres, or NoBroker listings you scroll past will appear here automatically.</p>`
-        : `<p class="font-display text-xl text-ink mb-2">No matches</p>
-         <p class="text-muted text-sm">Nothing matches the current filters. Try resetting them.</p>`;
+    if (hasAnyListings) {
+      emptyState.classList.add("hidden");
+      noMatchesState.classList.remove("hidden");
+    } else {
+      noMatchesState.classList.add("hidden");
+      emptyState.classList.remove("hidden");
+    }
     return;
   }
+
+  noMatchesState.classList.add("hidden");
   emptyState.classList.add("hidden");
   tableWrapper.classList.remove("hidden");
 
@@ -277,11 +296,11 @@ function buildRow(listing, index) {
 
   tr.appendChild(titleCell(listing));
   tr.appendChild(priceCell(listing));
-  tr.appendChild(cell(getAreaText(listing)));
-  tr.appendChild(cell(formatPricePerArea(listing)));
-  tr.appendChild(cell(getPropertyType(listing)));
+  tr.appendChild(cell(getAreaText(listing), "tabular-nums"));
+  tr.appendChild(cell(formatPricePerArea(listing), "tabular-nums text-muted"));
+  tr.appendChild(cell(getListingKind(listing)));
   tr.appendChild(sourceCell(listing.source));
-  tr.appendChild(linkCell(listing.link));
+  tr.appendChild(linkCell(listing));
   tr.appendChild(viewMoreDetailsCell(listing));
 
   return tr;
@@ -289,20 +308,20 @@ function buildRow(listing, index) {
 
 function cell(text, extraClass = "") {
   const td = document.createElement("td");
-  td.className = `px-3 py-3 text-ink ${extraClass}`;
+  td.className = `px-3 py-4 text-ink align-top ${extraClass}`;
   td.textContent = text || "—";
   return td;
 }
 
 function titleCell(listing) {
   const td = document.createElement("td");
-  td.className = "px-3 py-3 font-medium text-ink";
+  td.className = "px-4 py-4 align-top";
 
   const wrap = document.createElement("div");
-  wrap.className = "flex items-start gap-2";
+  wrap.className = "flex items-start justify-between gap-2";
 
   const span = document.createElement("span");
-  span.className = "line-clamp-2";
+  span.className = "font-medium text-ink leading-snug line-clamp-2";
   span.textContent = listing.title || "—";
   if (listing.title) span.title = listing.title;
   wrap.appendChild(span);
@@ -310,7 +329,7 @@ function titleCell(listing) {
   if (listing.seen) {
     const badge = document.createElement("span");
     badge.className =
-      "shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted bg-sand rounded-full px-2 py-0.5 mt-0.5";
+      "shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted bg-sand rounded-full px-2 py-0.5";
     badge.textContent = "Seen";
     wrap.appendChild(badge);
   }
@@ -321,71 +340,75 @@ function titleCell(listing) {
 
 function priceCell(listing) {
   const td = document.createElement("td");
-  td.className = "px-3 py-3";
+  td.className = "px-3 py-4 align-top";
 
-  const topRow = document.createElement("div");
-  topRow.className = "flex items-center gap-2";
-
-  const amount = document.createElement("span");
-  amount.className = "font-semibold text-ink";
+  const amount = document.createElement("div");
+  amount.className = "font-semibold text-ink tabular-nums";
   amount.textContent = listing.priceAmount || "—";
-  topRow.appendChild(amount);
+  td.appendChild(amount);
 
   const category = getListingCategory(listing);
   if (category) {
+    const tagRow = document.createElement("div");
+    tagRow.className = "mt-1";
+
     const tag = document.createElement("span");
     const tagStyles = {
       Rent: "text-teal bg-teal-soft",
-      Sale: "text-amber bg-amber-soft",
-      Land: "text-moss bg-moss-soft",
+      Buy: "text-amber bg-amber-soft",
     };
-    tag.className = `text-[10px] font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 ${tagStyles[category]}`;
+    tag.className = `inline-block text-[10px] font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 ${tagStyles[category]}`;
     tag.textContent = category;
-    topRow.appendChild(tag);
+    tagRow.appendChild(tag);
+    td.appendChild(tagRow);
   }
 
   const depositText = getSecurityDepositDisplay(listing);
-  td.appendChild(topRow);
   if (depositText) {
     const label = document.createElement("div");
-    label.className = "text-xs text-muted mt-0.5";
+    label.className = "text-xs text-muted mt-1";
     label.textContent = depositText;
     td.appendChild(label);
   }
   return td;
 }
 
+const SOURCE_STYLES = {
+  magicbricks: { label: "MagicBricks", className: "bg-teal-soft text-teal" },
+  "99acres": { label: "99acres", className: "bg-amber-soft text-amber" },
+  nobroker: { label: "NoBroker", className: "bg-moss-soft text-moss" },
+};
+
 function sourceCell(source) {
   const td = document.createElement("td");
-  td.className = "px-3 py-3";
+  td.className = "px-3 py-4 align-top";
   const badge = document.createElement("span");
-  badge.className = "inline-block text-xs font-medium rounded-full px-2.5 py-1";
-  badge.textContent = source || "unknown";
-  if (source === "magicbricks") {
-    badge.className += " bg-teal-soft text-teal";
-  } else if (source === "99acres") {
-    badge.className += " bg-teal-soft text-teal";
-  } else if (source === "nobroker") {
-    badge.className += " bg-teal-soft text-teal";
-  } else {
-    badge.className += " bg-sand text-muted";
-  }
+  const style = SOURCE_STYLES[source];
+  badge.className = `inline-block text-xs font-medium rounded-full px-2.5 py-1 ${style ? style.className : "bg-sand text-muted"}`;
+  badge.textContent = style ? style.label : source || "Unknown";
   td.appendChild(badge);
   return td;
 }
 
-function linkCell(link) {
+function linkCell(listing) {
   const td = document.createElement("td");
-  td.className = "px-3 py-3 text-right";
-  if (!link) return td;
+  td.className = "px-3 py-4 align-top text-center";
+  if (!listing.link) {
+    td.textContent = "—";
+    td.className += " text-muted";
+    return td;
+  }
   const a = document.createElement("a");
-  a.href = link;
+  a.href = listing.link;
   a.target = "_blank";
   a.rel = "noopener noreferrer";
-  a.className = "text-amber text-xs font-medium hover:underline";
-  a.textContent = "Open Link";
+  a.title = "Open listing in a new tab";
+  a.className =
+    "inline-flex items-center justify-center w-8 h-8 rounded-full text-muted hover:text-teal hover:bg-teal-soft transition-colors";
+  a.innerHTML =
+    '<svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H4.5A1.5 1.5 0 0 0 3 5.5v10A1.5 1.5 0 0 0 4.5 17h10a1.5 1.5 0 0 0 1.5-1.5V11M12 3h5v5M16.5 3.5 9 11" /></svg>';
   a.addEventListener("click", () => {
-    chrome.runtime.sendMessage({ type: "LISTING_VIEWED", url: link });
+    chrome.runtime.sendMessage({ type: "LISTING_VIEWED", url: listing.link });
   });
   td.appendChild(a);
   return td;
@@ -654,13 +677,13 @@ const DETAIL_FIELDS = [
     key: "furnishing",
     label: "Furnishing",
     getValue: (l) => normalizeFurnishing(l.furnishing) || l.furnishing,
-    appliesTo: (category) => category !== "Land",
+    appliesTo: (category, listing, type) => type !== "Land",
   },
   {
     key: "bathroom",
     label: "Bathroom",
     getValue: (l) => l.bathroom,
-    appliesTo: (category) => category !== "Land",
+    appliesTo: (category, listing, type) => type !== "Land",
   },
   {
     key: "tenent-preffered",
@@ -672,13 +695,13 @@ const DETAIL_FIELDS = [
     key: "floor",
     label: "Floor",
     getValue: (l) => l.floor,
-    appliesTo: (category) => category !== "Land",
+    appliesTo: (category, listing, type) => type !== "Land",
   },
   {
     key: "gated",
     label: "Gated Community",
     getValue: (l) => l.gated,
-    hint: "Whether the property is inside a gated complex a compound with a boundary wall and controlled/security entry rather than a standalone building open to the street.",
+    hint: "Whether the property is inside a gated complex — a compound with a boundary wall and controlled/security entry — rather than a standalone building open to the street.",
     appliesTo: () => true,
   },
   {
@@ -692,7 +715,8 @@ const DETAIL_FIELDS = [
 
 function getApplicableDetailFields(listing) {
   const category = getListingCategory(listing);
-  return DETAIL_FIELDS.filter((field) => field.appliesTo(category, listing));
+  const type = getListingKind(listing);
+  return DETAIL_FIELDS.filter((field) => field.appliesTo(category, listing, type));
 }
 
 function detailsAlreadyLoaded(listing) {
@@ -791,7 +815,7 @@ function makeViewMoreDetailsButton(listing) {
   const btn = document.createElement("button");
   btn.textContent = "View More Details";
   btn.className =
-    "text-teal text-xs font-medium border border-dashed border-teal/50 rounded-full px-2.5 py-1 hover:bg-teal-soft transition-colors whitespace-nowrap cursor-pointer";
+    "text-teal text-xs font-medium border border-dashed border-teal/50 rounded-full px-2.5 py-1 hover:bg-teal-soft transition-colors whitespace-nowrap cursor-pointer inline-block max-w-full truncate";
   btn.style.cursor = "pointer";
   btn.addEventListener("click", async () => {
     if (detailsAlreadyLoaded(listing) || !listing.link) {
@@ -832,7 +856,7 @@ function makeViewMoreDetailsButton(listing) {
 
 function viewMoreDetailsCell(listing) {
   const td = document.createElement("td");
-  td.className = "px-3 py-3 text-right";
+  td.className = "px-3 py-4 align-top text-right";
   td.appendChild(makeViewMoreDetailsButton(listing));
   return td;
 }
@@ -854,19 +878,19 @@ const EMPTY_CELL = "-";
 
 const EXPORT_COLUMNS = [
   { header: "Title", getValue: (l) => l.title || "" },
-  { header: "Listing Type", getValue: (l) => getListingCategory(l) || "" },
+  { header: "Category", getValue: (l) => getListingCategory(l) || "" },
   { header: "Price", getValue: (l) => l.priceAmount || "" },
   {
     header: "Deposit",
     getValue: (l) => {
-      const category = getListingCategory(l);
-      if (category === "Sale" || category === "Land") return "NA";
+      if (getListingCategory(l) === "Buy") return "NA";
       return getSecurityDepositValue(l) || "NA";
     },
   },
   { header: "Area", getValue: (l) => getAreaText(l) || "" },
   { header: "Price/Area", getValue: (l) => formatPricePerArea(l) || "" },
-  { header: "Type", getValue: (l) => getPropertyType(l) || "" },
+  { header: "Type", getValue: (l) => getListingKind(l) || "" },
+  { header: "Property", getValue: (l) => getPropertyType(l) || "" },
   { header: "Source", getValue: (l) => l.source || "" },
   { header: "Seen", getValue: (l) => (l.seen ? "Yes" : "No") },
   ...DETAIL_FIELDS.map(({ label, getValue }) => ({ header: label, getValue: (l) => getValue(l) || "" })),
@@ -910,7 +934,8 @@ clearBtn.addEventListener("click", async () => {
 });
 
 resetFiltersBtn.addEventListener("click", () => {
-  activeFilters.propertyType = null;
+  activeFilters.category = null;
+  activeFilters.type = null;
   activeFilters.source = null;
   activeFilters.bhk = null;
   activeFilters.furnishing = null;
