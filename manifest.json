@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ACREO",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Collects rental listings from multiple sites into one view.",
   "permissions": ["storage"],
   "host_permissions": ["*://*.magicbricks.com/*", "*://*.99acres.com/*", "*://*.nobroker.in/*"],
