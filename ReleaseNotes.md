@@ -1,32 +1,26 @@
-# 🏡 ACREO  Release Notes
+# 🏡 ACREO Release Notes
 
-### 🚀 Version 0.2.0 - August 2026
+### 🚀 Version 0.3.0 - August 2026
 
-A big update focused on **smarter filtering, cleaner data, and a much easier way to compare listings** across MagicBricks, NoBroker, and 99acres.
+A focused update on **first impressions and clearer filters** — making it easier to understand what ACREO does and to find exactly the listings you're looking for.
 
 ---
 
 ## ✨ What's New
 
-### 🎯 Smarter Filtering
-- **🏷️ Property Type Filter (Land / Sale / Rent)**:  Quickly narrow down listings by type with one click.
-- **🔘 Auto Grey Out Filters**: Source filters (MagicBricks, NoBroker, etc.) *and* Property Type filters now automatically grey out when there are no matching listings, so you never click a dead filter again.
+### 🖼️ A Better Welcome Screen
+- **✨ A proper introduction**: When you open ACREO for the first time, instead of a plain "no listings yet" message, you now get a friendly walkthrough showing exactly what to expect — no more guessing what the app does.
+- **📊 See what you'll get**: A sample table is shown upfront with example listings, so you can see exactly what your comparison table will look like once you start browsing.
+- **🔢 Step-by-step guide**: A simple 4-step walkthrough — browse listings, they get saved automatically, filter them, and jump back to the original — complete with real pictures of the app in action.
+- **🧱 Feature highlights**: A quick, easy-to-scan overview of what ACREO can do, with a friendly icon for each feature.
 
-### 📊 Better Table Experience
-- **📐 Price per Area Column**: A new column auto calculates price per unit area straight from Area and Price, so comparisons are instant.
-- **🗂️ Reorganized Columns**: All "Load Details" columns are now grouped together on the right side of the table for a cleaner layout.
-- **🔍 "View More Details" Expanded View**: The old "Load Details" button is now **View More Details**, opening a dedicated expanded table with all the extra info (Tenant, Gated, etc.) instead of cluttering the main view.
-- **🔗 "Open Link" Button**: The "View" button has been renamed to **Open Link** for clarity.
-- **❔ Gated Column Explained**: Added a tooltip so new users instantly understand what "Gated" means no more guessing.
+### 🎯 Smarter, Clearer Filters
+- **🏷️ Buy/Rent and Property Type are now separate**: Previously, "Land," "Sale," and "Rent" were all lumped into one filter, which was confusing since land can also be for sale. Now there are two clear filters: **Category** (Buy or Rent) and **Type** (Apartment, Land, or Other) — so you can combine them however you like, like "Land for sale" or "Apartments for rent."
+- **⚪ Every filter now greys out when empty**: Before, only the source filters (MagicBricks, 99acres, NoBroker) would grey out when there were no matching listings. Now this applies to every filter — Category, Type, BHK, Furnishing, Tenant preference, and Seen/Not Seen — so you'll never tap a filter that has nothing to show.
 
-### 👀 Stay on Top of What You've Seen
-- **✅ Seen Listing Tracking**: Listings you've opened are now marked as "seen" in the table and this works both ways: open a listing on the source site directly, and it'll show as seen back in ACREO too.
-
-### 🐛 Bug Fixes
-- **🔧 NoBroker Sale Listings Fixed**: Resolved price display issues and columns getting stuck on "Load Details" instead of showing real data.
-
-### 📤 Export & Share
-- **📁 Excel Export**: Export your full comparison table to Excel, in the exact same column format you see in the extension.
+### 🔒 Peace of Mind
+- **🛡️ Your privacy, front and center**: A clear note now reminds you that everything you save stays on your own device — nothing is ever sent anywhere or shared with anyone.
+- **🔗 One simple link for more info**: If you want to learn more, there's now a single, clear link to the full guide, instead of a cluttered page crammed with extra buttons and links.
 
 ---
 
@@ -34,12 +28,10 @@ A big update focused on **smarter filtering, cleaner data, and a much easier way
 
 | Category | Highlights |
 |---|---|
-| 🎯 Filtering | Property Type filter, smarter auto grey out |
-| 📊 Table UX | Price/Area column, reorganized columns, expanded details view |
-| 👀 Tracking | Seen/unseen listing sync |
-| 🐛 Fixes | NoBroker sale listings |
-| 📤 Export | Excel export |
+| 🎯 Filters | Buy/Rent and Property Type are now separate filters; every filter greys out when empty |
+| 🖼️ Welcome Screen | A friendly walkthrough with a sample table and step-by-step guide |
+| 🔒 Privacy | Clear reminder that your data stays on your device |
 
 ---
 
-*Thanks for using ACREO making property hunting a little less painful, one listing at a time. 🏠💙*
+*Thanks for using ACREO — making property hunting a little less painful, one listing at a time. 🏠💙*
