@@ -180,11 +180,11 @@ function chipButton(label, isActive, onClick, isDisabled = false) {
   if (isDisabled) {
     btn.disabled = true;
     btn.className =
-      "text-xs font-medium rounded-full px-3 py-1.5 bg-surface border border-sand text-muted opacity-40 cursor-not-allowed";
+      "inline-flex items-center whitespace-nowrap text-xs font-medium rounded-full px-3 py-1.5 bg-cream border border-sand text-muted opacity-45 cursor-not-allowed";
   } else {
     btn.className = isActive
-      ? "text-xs font-medium rounded-full px-3 py-1.5 bg-teal text-white transition-colors"
-      : "text-xs font-medium rounded-full px-3 py-1.5 bg-surface border border-sand text-ink hover:border-teal transition-colors";
+      ? "chip-active inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-medium rounded-full px-3 py-1.5 bg-teal border border-teal text-white shadow-sm shadow-teal/25 hover:bg-teal-deep transition-colors cursor-pointer active:scale-[.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 focus-visible:ring-offset-1"
+      : "inline-flex items-center whitespace-nowrap text-xs font-medium rounded-full px-3 py-1.5 bg-surface border border-sand text-ink hover:border-teal/50 hover:bg-teal-soft/60 hover:text-teal transition-colors cursor-pointer active:scale-[.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 focus-visible:ring-offset-1";
     btn.addEventListener("click", onClick);
   }
   return btn;
@@ -290,15 +290,15 @@ function renderAll() {
 
 function buildRow(listing, index) {
   const tr = document.createElement("tr");
-  tr.className = `border-b border-sand last:border-0 hover:bg-teal-soft/40 transition-colors ${
-    listing.seen ? "opacity-70 bg-cream/60" : "odd:bg-surface even:bg-cream/40"
+  tr.className = `transition-colors lg:hover:bg-teal-soft/35 ${
+    listing.seen ? "opacity-70 bg-cream" : "bg-surface lg:even:bg-cream/40"
   }`;
 
   tr.appendChild(titleCell(listing));
   tr.appendChild(priceCell(listing));
-  tr.appendChild(cell(getAreaText(listing), "tabular-nums"));
-  tr.appendChild(cell(formatPricePerArea(listing), "tabular-nums text-muted"));
-  tr.appendChild(cell(getListingKind(listing)));
+  tr.appendChild(cell(getAreaText(listing), "tabular-nums whitespace-nowrap"));
+  tr.appendChild(cell(formatPricePerArea(listing), "tabular-nums whitespace-nowrap text-muted"));
+  tr.appendChild(cell(getListingKind(listing), "text-ink/80"));
   tr.appendChild(sourceCell(listing.source));
   tr.appendChild(linkCell(listing));
   tr.appendChild(viewMoreDetailsCell(listing));
@@ -315,13 +315,13 @@ function cell(text, extraClass = "") {
 
 function titleCell(listing) {
   const td = document.createElement("td");
-  td.className = "px-4 py-4 align-top";
+  td.className = "pl-5 pr-3 py-4 align-top";
 
   const wrap = document.createElement("div");
   wrap.className = "flex items-start justify-between gap-2";
 
   const span = document.createElement("span");
-  span.className = "font-medium text-ink leading-snug line-clamp-2";
+  span.className = "font-medium text-ink leading-snug line-clamp-2 break-words";
   span.textContent = listing.title || "—";
   if (listing.title) span.title = listing.title;
   wrap.appendChild(span);
@@ -329,7 +329,7 @@ function titleCell(listing) {
   if (listing.seen) {
     const badge = document.createElement("span");
     badge.className =
-      "shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted bg-sand rounded-full px-2 py-0.5";
+      "shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted bg-sand/70 rounded-full px-2 py-0.5 before:content-[''] before:size-1.5 before:rounded-full before:bg-muted/60";
     badge.textContent = "Seen";
     wrap.appendChild(badge);
   }
@@ -343,21 +343,21 @@ function priceCell(listing) {
   td.className = "px-3 py-4 align-top";
 
   const amount = document.createElement("div");
-  amount.className = "font-semibold text-ink tabular-nums";
+  amount.className = "font-semibold text-[15px] leading-tight text-ink tabular-nums";
   amount.textContent = listing.priceAmount || "—";
   td.appendChild(amount);
 
   const category = getListingCategory(listing);
   if (category) {
     const tagRow = document.createElement("div");
-    tagRow.className = "mt-1";
+    tagRow.className = "mt-1.5";
 
     const tag = document.createElement("span");
     const tagStyles = {
-      Rent: "text-teal bg-teal-soft",
-      Buy: "text-amber bg-amber-soft",
+      Rent: "text-teal bg-teal-soft ring-teal/15",
+      Buy: "text-amber bg-amber-soft ring-amber/15",
     };
-    tag.className = `inline-block text-[10px] font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 ${tagStyles[category]}`;
+    tag.className = `inline-block text-[10px] font-semibold uppercase tracking-wider rounded-full px-2 py-0.5 ring-1 ring-inset ${tagStyles[category]}`;
     tag.textContent = category;
     tagRow.appendChild(tag);
     td.appendChild(tagRow);
@@ -366,7 +366,7 @@ function priceCell(listing) {
   const depositText = getSecurityDepositDisplay(listing);
   if (depositText) {
     const label = document.createElement("div");
-    label.className = "text-xs text-muted mt-1";
+    label.className = "text-xs text-muted mt-1.5 leading-snug";
     label.textContent = depositText;
     td.appendChild(label);
   }
@@ -374,9 +374,9 @@ function priceCell(listing) {
 }
 
 const SOURCE_STYLES = {
-  magicbricks: { label: "MagicBricks", className: "bg-teal-soft text-teal" },
-  "99acres": { label: "99acres", className: "bg-amber-soft text-amber" },
-  nobroker: { label: "NoBroker", className: "bg-moss-soft text-moss" },
+  magicbricks: { label: "MagicBricks", className: "bg-teal-soft text-teal ring-teal/15" },
+  "99acres": { label: "99acres", className: "bg-amber-soft text-amber ring-amber/15" },
+  nobroker: { label: "NoBroker", className: "bg-moss-soft text-moss ring-moss/15" },
 };
 
 function sourceCell(source) {
@@ -384,7 +384,7 @@ function sourceCell(source) {
   td.className = "px-3 py-4 align-top";
   const badge = document.createElement("span");
   const style = SOURCE_STYLES[source];
-  badge.className = `inline-block text-xs font-medium rounded-full px-2.5 py-1 ${style ? style.className : "bg-sand text-muted"}`;
+  badge.className = `inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-medium rounded-full pl-2 pr-2.5 py-1 ring-1 ring-inset before:content-[''] before:size-1.5 before:rounded-full before:bg-current ${style ? style.className : "bg-sand text-muted ring-sand"}`;
   badge.textContent = style ? style.label : source || "Unknown";
   td.appendChild(badge);
   return td;
@@ -392,7 +392,7 @@ function sourceCell(source) {
 
 function linkCell(listing) {
   const td = document.createElement("td");
-  td.className = "px-3 py-4 align-top text-center";
+  td.className = "px-2 py-4 align-top text-center";
   if (!listing.link) {
     td.textContent = "—";
     td.className += " text-muted";
@@ -404,7 +404,7 @@ function linkCell(listing) {
   a.rel = "noopener noreferrer";
   a.title = "Open listing in a new tab";
   a.className =
-    "inline-flex items-center justify-center w-8 h-8 rounded-full text-muted hover:text-teal hover:bg-teal-soft transition-colors";
+    "inline-flex items-center justify-center size-8 rounded-full border border-sand bg-surface text-muted hover:text-teal hover:border-teal/40 hover:bg-teal-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40";
   a.innerHTML =
     '<svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H4.5A1.5 1.5 0 0 0 3 5.5v10A1.5 1.5 0 0 0 4.5 17h10a1.5 1.5 0 0 0 1.5-1.5V11M12 3h5v5M16.5 3.5 9 11" /></svg>';
   a.addEventListener("click", () => {
@@ -741,11 +741,11 @@ function closeDetailsModal() {
 
 function detailRow(label, value, hint) {
   const tr = document.createElement("tr");
-  tr.className = "border-b border-sand last:border-0";
+  tr.className = "border-b border-line last:border-0";
 
   const th = document.createElement("th");
   th.scope = "row";
-  th.className = "text-left text-xs font-semibold uppercase tracking-wide text-muted px-3 py-3 w-1/3 align-top";
+  th.className = "text-left text-[11px] font-semibold uppercase tracking-wider text-muted pr-4 py-3.5 w-2/5 align-top";
 
   const labelWrap = document.createElement("span");
   labelWrap.className = "inline-flex items-center gap-1";
@@ -760,14 +760,14 @@ function detailRow(label, value, hint) {
     info.title = hint;
     info.setAttribute("role", "img");
     info.setAttribute("aria-label", hint);
-    info.className = "normal-case font-normal text-muted cursor-help";
+    info.className = "normal-case font-normal text-sm leading-none text-teal/70 hover:text-teal cursor-help";
     labelWrap.appendChild(info);
   }
 
   th.appendChild(labelWrap);
 
   const td = document.createElement("td");
-  td.className = "text-sm text-ink px-3 py-3";
+  td.className = "text-sm font-medium text-ink text-right py-3.5";
   if (hasValue(value)) {
     td.textContent = value;
   } else if (value === "Not found") {
@@ -804,7 +804,7 @@ function showDetailsLoadingState(message) {
   const tr = document.createElement("tr");
   const td = document.createElement("td");
   td.colSpan = 2;
-  td.className = "text-sm text-muted px-3 py-6 text-center";
+  td.className = "text-sm text-muted px-3 py-10 text-center";
   td.textContent = message;
   tr.appendChild(td);
   body.appendChild(tr);
@@ -815,7 +815,7 @@ function makeViewMoreDetailsButton(listing) {
   const btn = document.createElement("button");
   btn.textContent = "View More Details";
   btn.className =
-    "text-teal text-xs font-medium border border-dashed border-teal/50 rounded-full px-2.5 py-1 hover:bg-teal-soft transition-colors whitespace-nowrap cursor-pointer inline-block max-w-full truncate";
+    "inline-block max-w-full truncate whitespace-nowrap text-xs font-medium text-teal bg-teal-soft/70 ring-1 ring-inset ring-teal/20 rounded-full px-3 py-1.5 hover:bg-teal hover:text-white hover:ring-teal transition-colors cursor-pointer active:scale-[.97] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/50";
   btn.style.cursor = "pointer";
   btn.addEventListener("click", async () => {
     if (detailsAlreadyLoaded(listing) || !listing.link) {
@@ -856,7 +856,7 @@ function makeViewMoreDetailsButton(listing) {
 
 function viewMoreDetailsCell(listing) {
   const td = document.createElement("td");
-  td.className = "px-3 py-4 align-top text-right";
+  td.className = "pl-2 pr-5 py-4 align-top text-right";
   td.appendChild(makeViewMoreDetailsButton(listing));
   return td;
 }

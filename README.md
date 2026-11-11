@@ -85,6 +85,12 @@ npm run build:css
 
 Use `npm run watch:css` instead to rebuild automatically while you work.
 
+The landing page has its own stylesheet. After editing `landing-page/index.html` or `landing-page/src/input.css`, rebuild it from the same `ui` folder:
+
+```bash
+npm run build:landing
+```
+
 ---
 
 ## 🛠️ Tech Stack

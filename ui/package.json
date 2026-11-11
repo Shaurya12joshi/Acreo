@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "build:css": "tailwindcss -i ./src/input.css -o ./output.css --minify",
-    "watch:css": "tailwindcss -i ./src/input.css -o ./output.css --watch"
+    "watch:css": "tailwindcss -i ./src/input.css -o ./output.css --watch",
+    "build:landing": "tailwindcss -i ../landing-page/src/input.css -o ../landing-page/output.css --minify"
   },
   "devDependencies": {
     "tailwindcss": "^4",

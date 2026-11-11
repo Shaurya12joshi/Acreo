@@ -1,12 +1,16 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+@source "../index.html";
+@source "../app.js";
 
 @theme {
   --color-cream: #faf7f1;
   --color-surface: #ffffff;
   --color-sand: #e6ddce;
+  --color-line: #efe9df;
   --color-ink: #2a2620;
   --color-muted: #8a7f70;
   --color-teal: #2f6e6b;
+  --color-teal-deep: #245654;
   --color-teal-soft: #e3efee;
   --color-amber: #c1682f;
   --color-amber-soft: #f5e6d8;
@@ -15,4 +19,179 @@
 
   --font-display: "Fraunces", Georgia, serif;
   --font-body: "Inter", system-ui, sans-serif;
+
+  --shadow-soft: 0 1px 2px rgb(42 38 32 / 0.04), 0 2px 10px -4px rgb(42 38 32 / 0.08);
+  --shadow-lift: 0 1px 2px rgb(42 38 32 / 0.04), 0 18px 40px -18px rgb(42 38 32 / 0.25);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-teal-soft);
+    color: var(--color-teal-deep);
+  }
+}
+
+@layer components {
+  /* Checkmark shown inside the currently selected filter chip */
+  .chip-active::before {
+    content: "";
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-left: -0.125rem;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4.5 10.5 3.5 3.5 7.5-8'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+}
+
+#filters-toggle:checked ~ div .filters-chevron {
+  rotate: 180deg;
+}
+
+/* The welcome screen has nothing to count, export or clear yet */
+main:has(#empty-state:not(.hidden)) #toolbar {
+  display: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Listings table
+   Wide screens get a real table; below 1024px each row becomes a card.
+   These rules are intentionally unlayered so they win over the utility
+   classes app.js puts on each row and cell.
+--------------------------------------------------------------------------- */
+
+@media (width >= 64rem) {
+  #listings-body > tr:not(:last-child) > td {
+    border-bottom: 1px solid var(--color-line);
+  }
+}
+
+@media (width < 64rem) {
+  #table-wrapper {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  #table-wrapper table {
+    display: block;
+  }
+
+  #table-wrapper thead {
+    display: none;
+  }
+
+  #listings-body {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  #listings-body > tr {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr) minmax(0, 0.9fr);
+    grid-template-areas:
+      "title title title"
+      "price price source"
+      "area rate type"
+      "details details link";
+    column-gap: 0.5rem;
+    row-gap: 0.875rem;
+    padding: 1rem;
+    border: 1px solid var(--color-sand);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-soft);
+  }
+
+  #listings-body > tr:hover {
+    border-color: rgb(47 110 107 / 0.35);
+  }
+
+  #listings-body > tr > td {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    text-align: left;
+  }
+
+  #listings-body > tr > td:nth-child(1) { grid-area: title; }
+  #listings-body > tr > td:nth-child(2) { grid-area: price; }
+  #listings-body > tr > td:nth-child(3) { grid-area: area; }
+  #listings-body > tr > td:nth-child(4) { grid-area: rate; }
+  #listings-body > tr > td:nth-child(5) { grid-area: type; }
+  #listings-body > tr > td:nth-child(6) { grid-area: source; text-align: right; }
+  #listings-body > tr > td:nth-child(7) { grid-area: link; text-align: right; align-self: center; }
+  #listings-body > tr > td:nth-child(8) { grid-area: details; align-self: center; }
+
+  #listings-body > tr > td:nth-child(2) > div:first-child {
+    font-size: 1.125rem;
+  }
+
+  /* Area, price/area and type sit in small labelled tiles */
+  #listings-body > tr > td:is(:nth-child(3), :nth-child(4), :nth-child(5)) {
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.625rem;
+    background: rgb(230 221 206 / 0.35);
+    font-size: 0.8125rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #listings-body > tr > td:is(:nth-child(3), :nth-child(4), :nth-child(5))::before {
+    display: block;
+    margin-bottom: 0.125rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  #listings-body > tr > td:nth-child(3)::before { content: "Area"; }
+  #listings-body > tr > td:nth-child(4)::before { content: "Price / area"; }
+  #listings-body > tr > td:nth-child(5)::before { content: "Type"; }
+}
+
+@media (48rem <= width < 64rem) {
+  #listings-body {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Details modal: a bottom sheet on phones, a centred dialog elsewhere
+--------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .modal-backdrop {
+    animation: fade-in 0.2s ease-out both;
+  }
+
+  .modal-panel {
+    animation: sheet-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @media (width >= 40rem) {
+    .modal-panel {
+      animation: pop-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes sheet-in {
+  from { transform: translateY(100%); }
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
 }
