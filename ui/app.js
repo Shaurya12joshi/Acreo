@@ -183,7 +183,7 @@ function chipButton(label, isActive, onClick, isDisabled = false) {
       "inline-flex items-center whitespace-nowrap text-xs font-medium rounded-full px-3 py-1.5 bg-cream border border-sand text-muted opacity-45 cursor-not-allowed";
   } else {
     btn.className = isActive
-      ? "chip-active inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-medium rounded-full px-3 py-1.5 bg-teal border border-teal text-white shadow-sm shadow-teal/25 hover:bg-teal-deep transition-colors cursor-pointer active:scale-[.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 focus-visible:ring-offset-1"
+      ? "chip-active inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-medium rounded-full px-3 py-1.5 bg-teal border border-teal text-white hover:bg-teal-deep transition-colors cursor-pointer active:scale-[.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 focus-visible:ring-offset-1"
       : "inline-flex items-center whitespace-nowrap text-xs font-medium rounded-full px-3 py-1.5 bg-surface border border-sand text-ink hover:border-teal/50 hover:bg-teal-soft/60 hover:text-teal transition-colors cursor-pointer active:scale-[.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 focus-visible:ring-offset-1";
     btn.addEventListener("click", onClick);
   }
@@ -745,7 +745,7 @@ function detailRow(label, value, hint) {
 
   const th = document.createElement("th");
   th.scope = "row";
-  th.className = "text-left text-[11px] font-semibold uppercase tracking-wider text-muted pr-4 py-3.5 w-2/5 align-top";
+  th.className = "text-left font-mono font-normal text-[10px] uppercase tracking-[0.14em] text-muted pr-4 py-3.5 w-2/5 align-top";
 
   const labelWrap = document.createElement("span");
   labelWrap.className = "inline-flex items-center gap-1";
@@ -815,7 +815,7 @@ function makeViewMoreDetailsButton(listing) {
   const btn = document.createElement("button");
   btn.textContent = "View More Details";
   btn.className =
-    "inline-block max-w-full truncate whitespace-nowrap text-xs font-medium text-teal bg-teal-soft/70 ring-1 ring-inset ring-teal/20 rounded-full px-3 py-1.5 hover:bg-teal hover:text-white hover:ring-teal transition-colors cursor-pointer active:scale-[.97] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/50";
+    "inline-block max-w-full truncate whitespace-nowrap text-xs font-medium text-ink bg-surface border border-sand rounded-lg px-3 py-1.5 hover:border-teal/50 hover:text-teal transition-colors cursor-pointer active:scale-[.97] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/50";
   btn.style.cursor = "pointer";
   btn.addEventListener("click", async () => {
     if (detailsAlreadyLoaded(listing) || !listing.link) {

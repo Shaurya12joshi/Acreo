@@ -5,25 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Acreo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="output.css" />
 </head>
 <body class="bg-cream text-ink font-body min-h-screen">
 
-  <header class="border-b border-sand bg-surface">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
+  <!-- ============================== HEADER ============================== -->
+  <header class="sticky top-0 z-40 border-b border-sand/70 bg-cream/90 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
       <div class="flex items-center gap-3 min-w-0">
-        <span class="shrink-0 grid place-items-center size-10 rounded-xl bg-teal text-white shadow-sm shadow-teal/30">
-          <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <span class="shrink-0 grid place-items-center size-7 rounded-md bg-teal text-white">
+          <svg class="size-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 9.2 10 3.5l7 5.7" /><path d="M5 8v8h10V8" /><path d="M8.5 16v-4h3v4" />
           </svg>
         </span>
-        <div class="min-w-0">
-          <h1 class="font-display text-2xl font-semibold text-ink leading-none tracking-tight">Acreo</h1>
-          <p class="text-xs sm:text-sm text-muted mt-1 sm:truncate">Compare listings collected from MagicBricks, 99acres, and NoBroker</p>
-        </div>
+        <h1 class="font-serif text-xl font-semibold tracking-tight text-ink leading-none">Acreo</h1>
+        <p class="hidden lg:block text-sm text-muted truncate border-l border-sand pl-3">Listings from MagicBricks, 99acres and NoBroker</p>
       </div>
-      <span class="hidden md:inline-flex shrink-0 items-center gap-1.5 rounded-full border border-sand bg-cream px-3 py-1.5 text-xs text-muted">
+      <span class="hidden sm:inline-flex shrink-0 items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
         <svg class="size-3.5 text-moss" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
           <rect x="4" y="9" width="12" height="8" rx="1.5" /><path d="M7 9V6.5a3 3 0 0 1 6 0V9" />
         </svg>
@@ -32,25 +32,23 @@
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
 
-    <section id="filters" class="group hidden mb-6 rounded-2xl border border-sand bg-surface shadow-soft">
+    <!-- ============================== FILTERS (listings view) ============================== -->
+    <section id="filters" class="group hidden mb-6 rounded-xl border border-sand bg-surface">
       <!-- Phones: tap the header to show/hide the filters. Always open from 640px up. -->
       <input type="checkbox" id="filters-toggle" class="peer sr-only sm:hidden" />
-      <div class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 rounded-2xl peer-focus-visible:ring-2 peer-focus-visible:ring-teal/40">
-        <h2 class="flex-1 text-sm font-semibold text-ink">
-          <label for="filters-toggle" class="flex items-center gap-2 cursor-pointer sm:cursor-default select-none">
-            <svg class="size-4 text-teal" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 5h14M6 10h8M8.5 15h3" />
-            </svg>
-            Filters
-            <span class="hidden group-has-[.chip-active]:inline-flex items-center rounded-full bg-teal-soft text-teal text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5">Active</span>
+      <div class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 rounded-xl peer-focus-visible:ring-2 peer-focus-visible:ring-teal/40">
+        <h2 class="flex-1">
+          <label for="filters-toggle" class="flex items-center gap-2 cursor-pointer sm:cursor-default select-none font-mono text-[11px] uppercase tracking-[0.16em] text-teal">
+            <span><span class="opacity-55">// </span>Filters</span>
+            <span class="hidden group-has-[.chip-active]:inline-flex items-center rounded-full bg-teal-soft text-teal text-[9px] font-semibold tracking-wider px-2 py-0.5">Active</span>
             <svg class="filters-chevron size-4 text-muted transition-transform duration-200 sm:hidden" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="m6 8 4 4 4-4" />
             </svg>
           </label>
         </h2>
-        <button id="reset-filters-btn" class="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-amber hover:bg-amber-soft rounded-full px-2.5 py-1.5 transition-colors cursor-pointer">
+        <button id="reset-filters-btn" class="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-ink rounded-md px-2.5 py-1.5 transition-colors cursor-pointer">
           <svg class="size-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 10a6 6 0 1 0 1.8-4.3L4 7.5" /><path d="M4 3.5v4h4" />
           </svg>
@@ -61,19 +59,19 @@
       <div class="hidden peer-checked:block sm:block border-t border-line">
         <div class="px-4 sm:px-5 py-4 flex flex-wrap gap-x-8 gap-y-4">
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted mb-2">Category</p>
+            <p class="filter-label">Category</p>
             <div id="category-filters" class="flex items-center gap-2 flex-wrap"></div>
           </div>
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted mb-2">Type</p>
+            <p class="filter-label">Type</p>
             <div id="type-filters" class="flex items-center gap-2 flex-wrap"></div>
           </div>
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted mb-2">Source</p>
+            <p class="filter-label">Source</p>
             <div id="source-filters" class="flex items-center gap-2 flex-wrap"></div>
           </div>
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted mb-2">BHK</p>
+            <p class="filter-label">BHK</p>
             <div id="bhk-filters" class="flex items-center gap-2 flex-wrap"></div>
           </div>
         </div>
@@ -82,27 +80,28 @@
 
         <div class="px-4 sm:px-5 py-4 flex flex-wrap gap-x-8 gap-y-4">
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted mb-2">Furnishing</p>
+            <p class="filter-label">Furnishing</p>
             <div id="furnishing-filters" class="flex items-center gap-2 flex-wrap"></div>
           </div>
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted mb-2">Tenant preference</p>
+            <p class="filter-label">Tenant preference</p>
             <div id="tenant-filters" class="flex items-center gap-2 flex-wrap"></div>
           </div>
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted mb-2">Status</p>
+            <p class="filter-label">Status</p>
             <div id="seen-filters" class="flex items-center gap-2 flex-wrap"></div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ============================== TOOLBAR (listings view) ============================== -->
     <div id="toolbar" class="flex flex-wrap items-center justify-between gap-3 mb-4">
-      <p id="listing-count" class="text-sm font-medium text-ink/70 tabular-nums">0 listings collected</p>
+      <p id="listing-count" class="font-mono text-xs text-muted tabular-nums">0 listings collected</p>
       <div class="flex items-center gap-2">
         <button
           id="export-btn"
-          class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-teal hover:bg-teal-deep rounded-full px-3.5 py-2 shadow-sm shadow-teal/25 transition-colors cursor-pointer active:scale-[.97]"
+          class="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-teal hover:bg-teal-deep rounded-lg px-3.5 py-2 transition-colors cursor-pointer active:scale-[.97]"
         >
           <svg class="size-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10 3v9m0 0-3-3m3 3 3-3M4 13v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2" />
@@ -111,7 +110,7 @@
         </button>
         <button
           id="clear-btn"
-          class="inline-flex items-center gap-1.5 text-xs font-medium text-muted bg-surface hover:text-amber border border-sand hover:border-amber/40 hover:bg-amber-soft/60 rounded-full px-3.5 py-2 transition-colors cursor-pointer active:scale-[.97]"
+          class="inline-flex items-center gap-1.5 text-xs font-medium text-muted bg-surface hover:text-amber border border-sand hover:border-amber/40 rounded-lg px-3.5 py-2 transition-colors cursor-pointer active:scale-[.97]"
         >
           <svg class="size-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 6h12M8 6V4.5A1.5 1.5 0 0 1 9.5 3h1A1.5 1.5 0 0 1 12 4.5V6m-6 0 .6 9.4A1.5 1.5 0 0 0 8.1 17h3.8a1.5 1.5 0 0 0 1.5-1.6L14 6" />
@@ -121,218 +120,255 @@
       </div>
     </div>
 
-    <div id="no-matches-state" class="hidden rounded-2xl border border-dashed border-sand bg-surface/60 text-center px-6 py-16 sm:py-24">
-      <div class="mx-auto mb-4 grid place-items-center size-12 rounded-2xl bg-amber-soft text-amber">
-        <svg class="size-6" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="9" cy="9" r="5.5" /><path d="m13 13 4 4M7 7l4 4M11 7l-4 4" />
-        </svg>
-      </div>
-      <p class="font-display text-xl font-semibold text-ink mb-1.5">No matches</p>
-      <p class="text-muted text-sm">Nothing matches the current filters. Try resetting them.</p>
+    <div id="no-matches-state" class="hidden rounded-xl border border-dashed border-sand bg-surface/60 px-6 py-16 sm:py-24 text-center">
+      <p class="eyebrow mb-4">No matches</p>
+      <p class="font-display text-2xl tracking-[-0.02em] text-ink mb-2">Nothing fits these filters.</p>
+      <p class="text-muted text-sm">Try removing one, or reset them all.</p>
     </div>
 
+    <!-- ============================== WELCOME (shown only when nothing is collected yet) ============================== -->
     <div id="empty-state" class="hidden">
 
-      <section class="relative isolate text-center pt-8 sm:pt-12 pb-10">
-        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 -top-10 -z-10 flex justify-center">
-          <div class="h-64 w-[36rem] max-w-full rounded-full bg-teal-soft blur-3xl opacity-80"></div>
+      <!-- Hero -->
+      <section class="pt-10 sm:pt-20 pb-14 sm:pb-20">
+        <p class="eyebrow mb-7">Welcome to Acreo</p>
+        <h2 class="font-display text-[2.6rem] sm:text-6xl lg:text-[4.5rem] font-normal tracking-[-0.04em] leading-[1.02] text-ink max-w-4xl">
+          Every listing you browse, <span class="text-teal">side by side.</span>
+        </h2>
+        <div class="mt-8 max-w-xl">
+          <p class="text-base sm:text-lg text-muted leading-relaxed">Nothing collected yet. Open any of the sites below and browse as usual. Every listing you view is saved here automatically.</p>
+          <p class="mt-4 font-serif italic text-xl text-ink/75">Free, private, and out of your way.</p>
         </div>
-        <div class="mx-auto mb-5 grid place-items-center size-14 rounded-2xl bg-surface text-teal border border-sand shadow-soft">
-          <svg class="size-6" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="14" height="12" rx="2" /><path d="M3 8h14M7 12h6" />
-          </svg>
+        <div class="mt-10 flex flex-col sm:flex-row gap-3 max-w-xs sm:max-w-none">
+          <a href="https://www.magicbricks.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-lg bg-teal px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-teal-deep">
+            Open MagicBricks
+            <svg class="size-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13 13 7M8 7h5v5" /></svg>
+          </a>
+          <a href="https://www.99acres.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-lg border border-sand bg-surface px-5 py-3 text-sm font-medium text-ink transition-colors hover:border-ink/25">
+            99acres
+            <svg class="size-3.5 text-muted" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13 13 7M8 7h5v5" /></svg>
+          </a>
+          <a href="https://www.nobroker.in" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-lg border border-sand bg-surface px-5 py-3 text-sm font-medium text-ink transition-colors hover:border-ink/25">
+            NoBroker
+            <svg class="size-3.5 text-muted" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13 13 7M8 7h5v5" /></svg>
+          </a>
         </div>
-        <p class="font-display text-3xl sm:text-4xl font-semibold text-ink tracking-tight mb-3">No listings yet</p>
-        <p class="text-muted text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
-          Browse rental search results on
-          <a href="https://www.magicbricks.com" target="_blank" rel="noopener noreferrer" class="text-teal hover:text-amber font-medium underline decoration-teal/30 underline-offset-4 transition-colors">MagicBricks</a>,
-          <a href="https://www.99acres.com" target="_blank" rel="noopener noreferrer" class="text-teal hover:text-amber font-medium underline decoration-teal/30 underline-offset-4 transition-colors">99acres</a>, or
-          <a href="https://www.nobroker.in" target="_blank" rel="noopener noreferrer" class="text-teal hover:text-amber font-medium underline decoration-teal/30 underline-offset-4 transition-colors">NoBroker</a>
-          — listings you scroll past will appear here automatically.
-        </p>
+        <p class="mt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-muted">No account. No server. No cost.</p>
       </section>
 
-      <div class="max-w-3xl mx-auto border border-sand bg-surface rounded-2xl overflow-hidden shadow-lift mb-20">
-        <div class="border-b border-sand bg-cream px-4 py-2.5 flex items-center gap-1.5">
-          <span class="size-2.5 rounded-full bg-amber/30"></span>
-          <span class="size-2.5 rounded-full bg-sand"></span>
-          <span class="size-2.5 rounded-full bg-teal/30"></span>
-          <span class="ml-2 text-xs text-muted truncate">Preview what this page fills in for you</span>
-        </div>
-        <div class="overflow-x-auto px-2 sm:px-4 py-3">
-          <table class="w-full min-w-[30rem] text-sm">
-            <thead>
-              <tr class="border-b border-sand text-left">
-                <th class="px-3 py-2.5 text-[11px] font-semibold text-muted uppercase tracking-wider">Source</th>
-                <th class="px-3 py-2.5 text-[11px] font-semibold text-muted uppercase tracking-wider">Rent</th>
-                <th class="px-3 py-2.5 text-[11px] font-semibold text-muted uppercase tracking-wider">Deposit</th>
-                <th class="px-3 py-2.5 text-[11px] font-semibold text-muted uppercase tracking-wider">Area</th>
-                <th class="px-3 py-2.5 text-[11px] font-semibold text-muted uppercase tracking-wider">Floor</th>
-              </tr>
-            </thead>
-            <tbody class="tabular-nums">
-              <tr class="border-b border-line">
-                <td class="px-3 py-3"><span class="bg-teal-soft text-teal rounded-full px-2.5 py-1 text-xs font-semibold">MagicBricks</span></td>
-                <td class="px-3 py-3 font-semibold text-ink">₹32,000</td>
-                <td class="px-3 py-3 text-ink">₹1,00,000</td>
-                <td class="px-3 py-3 text-ink">1,050 sqft</td>
-                <td class="px-3 py-3 text-ink">4th of 9</td>
-              </tr>
-              <tr class="border-b border-line">
-                <td class="px-3 py-3"><span class="bg-amber-soft text-amber rounded-full px-2.5 py-1 text-xs font-semibold">99acres</span></td>
-                <td class="px-3 py-3 font-semibold text-ink">₹28,500</td>
-                <td class="px-3 py-3 text-ink">₹85,000</td>
-                <td class="px-3 py-3 text-ink">960 sqft</td>
-                <td class="px-3 py-3 text-ink">2nd of 6</td>
-              </tr>
-              <tr>
-                <td class="px-3 py-3"><span class="bg-moss-soft text-moss rounded-full px-2.5 py-1 text-xs font-semibold">NoBroker</span></td>
-                <td class="px-3 py-3 font-semibold text-ink">₹35,000</td>
-                <td class="px-3 py-3 text-ink">₹1,20,000</td>
-                <td class="px-3 py-3 text-ink">1,180 sqft</td>
-                <td class="px-3 py-3 text-ink">7th of 12</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <section class="mb-20">
-        <p class="text-center mb-3"><span class="inline-block rounded-full bg-teal-soft text-teal text-[11px] font-semibold uppercase tracking-wider px-3 py-1">How it works</span></p>
-        <h2 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-center text-ink mb-12">Four steps, zero guesswork.</h2>
-
-        <div class="space-y-12 md:space-y-16">
-          <div class="grid items-center gap-6 md:grid-cols-2 md:gap-12">
-            <div>
-              <span class="font-display text-4xl font-semibold text-teal/25 leading-none">01</span>
-              <h3 class="font-display text-xl font-semibold text-ink mt-2 mb-2">Every listing, logged automatically</h3>
-              <p class="text-sm sm:text-base text-muted leading-relaxed">Open MagicBricks, 99acres, or NoBroker like you always do. Acreo logs every listing the moment you view it — no button to click.</p>
+      <!-- Preview of what this page fills in -->
+      <section class="pb-16 sm:pb-24">
+        <div class="rounded-xl border border-sand bg-surface overflow-hidden">
+          <div class="flex items-center gap-3 border-b border-sand bg-cream/60 px-4 py-2.5">
+            <div class="flex gap-1.5">
+              <span class="size-2.5 rounded-full bg-sand"></span><span class="size-2.5 rounded-full bg-sand"></span><span class="size-2.5 rounded-full bg-sand"></span>
             </div>
-            <div class="border border-sand bg-surface rounded-2xl overflow-hidden shadow-lift">
-              <div class="border-b border-sand bg-cream px-3 py-2 flex gap-1.5"><span class="size-2 rounded-full bg-sand"></span><span class="size-2 rounded-full bg-sand"></span><span class="size-2 rounded-full bg-sand"></span></div>
-              <img src="assets/image1.png" alt="Acreo header showing listings logged automatically" class="w-full" loading="lazy">
-            </div>
+            <span class="flex-1"></span>
+            <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Preview · what this page fills in</span>
           </div>
-
-          <div class="grid items-center gap-6 md:grid-cols-2 md:gap-12">
-            <div class="md:order-2">
-              <span class="font-display text-4xl font-semibold text-teal/25 leading-none">02</span>
-              <h3 class="font-display text-xl font-semibold text-ink mt-2 mb-2">Tap a chip to filter</h3>
-              <p class="text-sm sm:text-base text-muted leading-relaxed">Narrow everything down in one tap by source, BHK, furnishing status, or tenant type. No dropdowns, no forms.</p>
-            </div>
-            <div class="md:order-1 border border-sand bg-surface rounded-2xl overflow-hidden shadow-lift">
-              <div class="border-b border-sand bg-cream px-3 py-2 flex gap-1.5"><span class="size-2 rounded-full bg-sand"></span><span class="size-2 rounded-full bg-sand"></span><span class="size-2 rounded-full bg-sand"></span></div>
-              <img src="assets/image5.png" alt="Acreo filter chips for source, BHK, furnishing, and tenant type" class="w-full" loading="lazy">
-            </div>
-          </div>
-
-          <div class="grid items-center gap-6 md:grid-cols-2 md:gap-12">
-            <div>
-              <span class="font-display text-4xl font-semibold text-teal/25 leading-none">03</span>
-              <h3 class="font-display text-xl font-semibold text-ink mt-2 mb-2">Compare side by side</h3>
-              <p class="text-sm sm:text-base text-muted leading-relaxed">Rent, deposit, area, and floor all lined up in one table instead of six open tabs and a half-remembered scroll.</p>
-            </div>
-            <div class="border border-sand bg-surface rounded-2xl overflow-hidden shadow-lift">
-              <div class="border-b border-sand bg-cream px-3 py-2 flex gap-1.5"><span class="size-2 rounded-full bg-sand"></span><span class="size-2 rounded-full bg-sand"></span><span class="size-2 rounded-full bg-sand"></span></div>
-              <img src="assets/image6.png" alt="Acreo comparison table with rent and deposit for each listing" class="w-full" loading="lazy">
-            </div>
-          </div>
-
-          <div class="grid items-center gap-6 md:grid-cols-2 md:gap-12">
-            <div class="md:order-2">
-              <span class="font-display text-4xl font-semibold text-teal/25 leading-none">04</span>
-              <h3 class="font-display text-xl font-semibold text-ink mt-2 mb-2">One click back to the source</h3>
-              <p class="text-sm sm:text-base text-muted leading-relaxed">Found the one? Hit View to jump straight to the original listing and message the owner or broker.</p>
-            </div>
-            <div class="md:order-1 border border-sand bg-surface rounded-2xl overflow-hidden shadow-lift">
-              <div class="border-b border-sand bg-cream px-3 py-2 flex gap-1.5"><span class="size-2 rounded-full bg-sand"></span><span class="size-2 rounded-full bg-sand"></span><span class="size-2 rounded-full bg-sand"></span></div>
-              <img src="assets/image7.png" alt="Acreo View button linking back to the original rental listing" class="w-full" loading="lazy">
+          <div class="bg-cream/50 p-3 sm:p-5">
+            <div class="overflow-hidden rounded-lg border border-sand bg-surface">
+              <table class="w-full text-[13px] tabular-nums">
+                <thead class="bg-cream">
+                  <tr>
+                    <th class="mock-th pl-4">Title</th>
+                    <th class="mock-th">Price</th>
+                    <th class="mock-th hidden md:table-cell">Area</th>
+                    <th class="mock-th hidden md:table-cell">Price/Area</th>
+                    <th class="mock-th hidden lg:table-cell">Type</th>
+                    <th class="mock-th hidden sm:table-cell">Source</th>
+                    <th class="mock-th pr-4 text-center">Link</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-line">
+                  <tr>
+                    <td class="mock-td pl-4"><p class="font-medium leading-snug">2 BHK Apartment for Rent in Whitefield</p><p class="sm:hidden mt-1.5"><span class="src src-mb">MagicBricks</span></p></td>
+                    <td class="mock-td whitespace-nowrap"><p class="font-semibold text-[14px] leading-tight">₹42,000</p><p class="mt-1"><span class="tag tag-rent">Rent</span></p><p class="text-[11px] text-muted mt-1">Deposit ₹2,00,000</p></td>
+                    <td class="mock-td hidden md:table-cell whitespace-nowrap">1,210 sqft</td>
+                    <td class="mock-td hidden md:table-cell whitespace-nowrap text-muted">₹35 / sqft</td>
+                    <td class="mock-td hidden lg:table-cell text-ink/80">Apartment</td>
+                    <td class="mock-td hidden sm:table-cell"><span class="src src-mb">MagicBricks</span></td>
+                    <td class="mock-td pr-4 text-center"><span class="icon-btn"><svg class="size-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H4.5A1.5 1.5 0 0 0 3 5.5v10A1.5 1.5 0 0 0 4.5 17h10a1.5 1.5 0 0 0 1.5-1.5V11M12 3h5v5M16.5 3.5 9 11" /></svg></span></td>
+                  </tr>
+                  <tr class="bg-cream/40">
+                    <td class="mock-td pl-4"><p class="font-medium leading-snug">2 BHK Flat for Rent near Marathahalli</p><p class="sm:hidden mt-1.5"><span class="src src-99">99acres</span></p></td>
+                    <td class="mock-td whitespace-nowrap"><p class="font-semibold text-[14px] leading-tight">₹36,500</p><p class="mt-1"><span class="tag tag-rent">Rent</span></p><p class="text-[11px] text-muted mt-1">Deposit ₹1,50,000</p></td>
+                    <td class="mock-td hidden md:table-cell whitespace-nowrap">1,080 sqft</td>
+                    <td class="mock-td hidden md:table-cell whitespace-nowrap text-muted">₹34 / sqft</td>
+                    <td class="mock-td hidden lg:table-cell text-ink/80">Apartment</td>
+                    <td class="mock-td hidden sm:table-cell"><span class="src src-99">99acres</span></td>
+                    <td class="mock-td pr-4 text-center"><span class="icon-btn"><svg class="size-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H4.5A1.5 1.5 0 0 0 3 5.5v10A1.5 1.5 0 0 0 4.5 17h10a1.5 1.5 0 0 0 1.5-1.5V11M12 3h5v5M16.5 3.5 9 11" /></svg></span></td>
+                  </tr>
+                  <tr class="bg-cream opacity-70">
+                    <td class="mock-td pl-4"><div class="flex flex-col-reverse items-start gap-1.5 sm:flex-row sm:justify-between sm:gap-2"><p class="font-medium leading-snug">2 BHK Gated Apartment in Bellandur</p><span class="seen">Seen</span></div><p class="sm:hidden mt-1.5"><span class="src src-nb">NoBroker</span></p></td>
+                    <td class="mock-td whitespace-nowrap"><p class="font-semibold text-[14px] leading-tight">₹48,000</p><p class="mt-1"><span class="tag tag-rent">Rent</span></p><p class="text-[11px] text-muted mt-1">Deposit ₹2,50,000</p></td>
+                    <td class="mock-td hidden md:table-cell whitespace-nowrap">1,345 sqft</td>
+                    <td class="mock-td hidden md:table-cell whitespace-nowrap text-muted">₹36 / sqft</td>
+                    <td class="mock-td hidden lg:table-cell text-ink/80">Apartment</td>
+                    <td class="mock-td hidden sm:table-cell"><span class="src src-nb">NoBroker</span></td>
+                    <td class="mock-td pr-4 text-center"><span class="icon-btn"><svg class="size-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H4.5A1.5 1.5 0 0 0 3 5.5v10A1.5 1.5 0 0 0 4.5 17h10a1.5 1.5 0 0 0 1.5-1.5V11M12 3h5v5M16.5 3.5 9 11" /></svg></span></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="mb-16">
-        <p class="text-center mb-3"><span class="inline-block rounded-full bg-teal-soft text-teal text-[11px] font-semibold uppercase tracking-wider px-3 py-1">Why Acreo</span></p>
-        <h2 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-center text-ink mb-10 max-w-xl mx-auto">Built for the way house hunting actually happens.</h2>
+      <!-- How it works -->
+      <section class="border-t border-sand/70 py-16 sm:py-24">
+        <p class="eyebrow mb-6">How it works</p>
+        <h2 class="section-title max-w-3xl mb-12">Browse the way you already do. <span class="text-muted/70 sm:block">Acreo does the bookkeeping.</span></h2>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="border border-sand bg-surface rounded-2xl p-5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-lift hover:border-teal/30">
-            <div class="size-10 rounded-xl bg-teal-soft text-teal grid place-items-center mb-4">
-              <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v9m0 0-3.2-3.2M10 11l3.2-3.2M4 13.5V16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2.5" /></svg>
+        <!-- Each card spans two subgrid rows, so all three illustrations share the tallest one's height -->
+        <ol class="grid gap-4 md:grid-cols-3">
+          <li class="row-span-2 grid grid-cols-1 grid-rows-subgrid gap-0 overflow-hidden rounded-xl border border-sand bg-surface">
+            <div class="min-h-44 border-b border-sand bg-cream/50 p-5 flex flex-col justify-center">
+              <div class="rounded-lg border border-sand bg-surface p-4">
+                <p class="font-mono text-[10px] text-muted mb-3">magicbricks.com</p>
+                <div class="space-y-2">
+                  <div class="h-2 w-3/4 rounded-full bg-sand"></div>
+                  <div class="h-2 w-1/2 rounded-full bg-line"></div>
+                  <div class="h-2 w-2/3 rounded-full bg-line"></div>
+                </div>
+              </div>
+              <div class="mt-3 self-end inline-flex items-center gap-1.5 rounded-md bg-ink px-2.5 py-1.5 text-[11px] font-medium text-cream">
+                <svg class="size-3 text-teal-soft" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 10.5 3.5 3.5 7.5-8" /></svg>
+                Saved to Acreo
+              </div>
             </div>
-            <h3 class="font-semibold text-ink mb-1.5">Auto captures listings</h3>
-            <p class="text-sm text-muted leading-relaxed">No manual saving. Every listing you open is logged the instant you view it.</p>
+            <div class="p-6">
+              <p class="mono-label mb-3">01 / Browse</p>
+              <h3 class="font-display text-lg font-medium tracking-[-0.01em] text-ink mb-2">Browse as usual</h3>
+              <p class="text-sm text-muted leading-relaxed">Search on MagicBricks, 99acres or NoBroker. Every listing you open is saved automatically, with no button to press.</p>
+            </div>
+          </li>
+
+          <li class="row-span-2 grid grid-cols-1 grid-rows-subgrid gap-0 overflow-hidden rounded-xl border border-sand bg-surface">
+            <div class="min-h-44 border-b border-sand bg-cream/50 p-5 flex flex-col justify-center">
+              <p class="group-label">Category</p>
+              <div class="flex flex-wrap gap-1.5 mb-3"><span class="chip">Buy</span><span class="chip chip-on">Rent</span></div>
+              <p class="group-label">BHK</p>
+              <div class="flex flex-wrap gap-1.5 mb-3"><span class="chip">1 BHK</span><span class="chip chip-on">2 BHK</span><span class="chip">3 BHK</span><span class="chip chip-off">4 BHK</span></div>
+              <p class="group-label">Furnishing</p>
+              <div class="flex flex-wrap gap-1.5"><span class="chip">Furnished</span><span class="chip chip-on">Semi-Furnished</span></div>
+            </div>
+            <div class="p-6">
+              <p class="mono-label mb-3">02 / Compare</p>
+              <h3 class="font-display text-lg font-medium tracking-[-0.01em] text-ink mb-2">Filter and compare</h3>
+              <p class="text-sm text-muted leading-relaxed">Come back here and narrow everything down with a tap. Price, area and price per sq ft line up across all three sites.</p>
+            </div>
+          </li>
+
+          <li class="row-span-2 grid grid-cols-1 grid-rows-subgrid gap-0 overflow-hidden rounded-xl border border-sand bg-surface">
+            <div class="min-h-44 border-b border-sand bg-cream/50 p-5 flex flex-col justify-center gap-3">
+              <div class="flex items-center justify-between gap-3 rounded-lg border border-sand bg-surface px-3 py-2.5">
+                <div class="min-w-0">
+                  <p class="text-[12px] font-medium truncate">2 BHK Apartment in Whitefield</p>
+                  <p class="text-[11px] text-muted tabular-nums truncate">₹42,000 · 1,210 sqft</p>
+                </div>
+                <span class="inline-flex shrink-0 items-center gap-1 rounded-md border border-teal/30 bg-teal-soft px-2 md:max-lg:px-1.5 py-1 text-[11px] font-medium text-teal">
+                  <span class="md:max-lg:hidden">Open</span>
+                  <svg class="size-3" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13 13 7M8 7h5v5" /></svg>
+                </span>
+              </div>
+              <div class="flex items-center gap-3 rounded-lg border border-dashed border-sand bg-surface/70 px-3 py-2.5">
+                <svg class="size-4 shrink-0 text-moss" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="12" rx="1.5" /><path d="M3 8.3h14M3 12.2h14M8.3 8.3V16" /></svg>
+                <p class="font-mono text-[11px] text-ink/80 truncate">acreo-listings.xlsx</p>
+              </div>
+            </div>
+            <div class="p-6">
+              <p class="mono-label mb-3">03 / Shortlist</p>
+              <h3 class="font-display text-lg font-medium tracking-[-0.01em] text-ink mb-2">Shortlist and reach out</h3>
+              <p class="text-sm text-muted leading-relaxed">Jump straight back to the original listing to contact the owner or broker, or export the whole table to Excel.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Features -->
+      <section class="border-t border-sand/70 py-16 sm:py-24">
+        <p class="eyebrow mb-6">What you get</p>
+        <h2 class="section-title max-w-3xl mb-12">Small, considered tools. <span class="text-muted/70 sm:block">None of the busywork.</span></h2>
+
+        <div class="grid gap-x-10 gap-y-0 sm:grid-cols-2 lg:grid-cols-3 border-t border-sand">
+          <div class="border-b border-sand py-6">
+            <p class="mono-label mb-3">01 / Filters</p>
+            <h3 class="font-display font-medium text-ink mb-1.5">Filters that know what's left</h3>
+            <p class="text-sm text-muted leading-relaxed">Seven filter groups. Options with no matching listings grey out automatically.</p>
           </div>
-          <div class="border border-sand bg-surface rounded-2xl p-5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-lift hover:border-teal/30">
-            <div class="size-10 rounded-xl bg-teal-soft text-teal grid place-items-center mb-4">
-              <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h14M6 10h8M8.5 15h3" /></svg>
-            </div>
-            <h3 class="font-semibold text-ink mb-1.5">Cross platform filters</h3>
-            <p class="text-sm text-muted leading-relaxed">Filter across MagicBricks, 99acres, and NoBroker in one place — by BHK, furnishing, tenant type, and more.</p>
+          <div class="border-b border-sand py-6">
+            <p class="mono-label mb-3">02 / Pricing</p>
+            <h3 class="font-display font-medium text-ink mb-1.5">Price per sq ft, worked out</h3>
+            <p class="text-sm text-muted leading-relaxed">Compare a bigger flat at a higher rent fairly, without doing the maths.</p>
           </div>
-          <div class="border border-sand bg-surface rounded-2xl p-5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-lift hover:border-teal/30">
-            <div class="size-10 rounded-xl bg-teal-soft text-teal grid place-items-center mb-4">
-              <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="12" rx="1.5" /><path d="M3 8.3h14M8.3 8.3V16" /></svg>
-            </div>
-            <h3 class="font-semibold text-ink mb-1.5">One comparison table</h3>
-            <p class="text-sm text-muted leading-relaxed">Rent, deposit, area, and floor for every listing, side by side — no spreadsheet required.</p>
+          <div class="border-b border-sand py-6">
+            <p class="mono-label mb-3">03 / History</p>
+            <h3 class="font-display font-medium text-ink mb-1.5">Remembers what you've seen</h3>
+            <p class="text-sm text-muted leading-relaxed">Listings you've opened are marked, in sync with the source site.</p>
           </div>
-          <div class="border border-sand bg-surface rounded-2xl p-5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-lift hover:border-teal/30">
-            <div class="size-10 rounded-xl bg-teal-soft text-teal grid place-items-center mb-4">
-              <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13 13 7M8 7h5v5" /></svg>
-            </div>
-            <h3 class="font-semibold text-ink mb-1.5">One click to the source</h3>
-            <p class="text-sm text-muted leading-relaxed">Jump straight back to the original listing to contact the owner or broker.</p>
+          <div class="border-b border-sand py-6">
+            <p class="mono-label mb-3">04 / Details</p>
+            <h3 class="font-display font-medium text-ink mb-1.5">Details without the clutter</h3>
+            <p class="text-sm text-muted leading-relaxed">Tenant preference, gated community and more sit one click away.</p>
           </div>
-          <div class="border border-sand bg-surface rounded-2xl p-5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-lift hover:border-teal/30">
-            <div class="size-10 rounded-xl bg-teal-soft text-teal grid place-items-center mb-4">
-              <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2.5 4 5v4.5c0 4 2.6 6.7 6 8 3.4-1.3 6-4 6-8V5l-6-2.5Z" /></svg>
-            </div>
-            <h3 class="font-semibold text-ink mb-1.5">Private by default</h3>
-            <p class="text-sm text-muted leading-relaxed">Your saved listings live in your browser. No sign-up, no server, no ads based on your search.</p>
+          <div class="border-b border-sand py-6">
+            <p class="mono-label mb-3">05 / Export</p>
+            <h3 class="font-display font-medium text-ink mb-1.5">Export to Excel</h3>
+            <p class="text-sm text-muted leading-relaxed">Take the full comparison into a spreadsheet to share with family or flatmates.</p>
           </div>
-          <div class="border border-sand bg-surface rounded-2xl p-5 shadow-soft transition duration-200 hover:-translate-y-0.5 hover:shadow-lift hover:border-teal/30">
-            <div class="size-10 rounded-xl bg-teal-soft text-teal grid place-items-center mb-4">
-              <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 10.5 3.5 3.5L16 5.5" /></svg>
-            </div>
-            <h3 class="font-semibold text-ink mb-1.5">Zero setup</h3>
-            <p class="text-sm text-muted leading-relaxed">Install and go. There's nothing to configure before Acreo starts working.</p>
+          <div class="border-b border-sand py-6">
+            <p class="mono-label mb-3">06 / Source</p>
+            <h3 class="font-display font-medium text-ink mb-1.5">One click to the original</h3>
+            <p class="text-sm text-muted leading-relaxed">Jump back to the listing on the site it came from to contact the owner or broker.</p>
           </div>
         </div>
       </section>
 
-      <section class="relative isolate overflow-hidden rounded-3xl bg-teal text-white px-6 py-10 sm:py-12 text-center mb-10">
-        <div aria-hidden="true" class="pointer-events-none absolute -right-16 -top-16 -z-10 size-56 rounded-full bg-white/10"></div>
-        <div aria-hidden="true" class="pointer-events-none absolute -left-10 -bottom-20 -z-10 size-48 rounded-full bg-white/5"></div>
-        <div class="mx-auto mb-4 grid place-items-center size-11 rounded-xl bg-white/15">
-          <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2.5 4 5v4.5c0 4 2.6 6.7 6 8 3.4-1.3 6-4 6-8V5l-6-2.5Z" /><path d="m7.5 10 1.8 1.8L12.8 8.3" /></svg>
+      <!-- Privacy -->
+      <section class="border-t border-sand/70 py-16 sm:py-24 grid gap-10 lg:grid-cols-2 lg:gap-20">
+        <div>
+          <p class="eyebrow mb-6">Privacy</p>
+          <h2 class="section-title">Your shortlist stays yours. <span class="text-muted/70">Nothing leaves your browser.</span></h2>
         </div>
-        <h2 class="font-display text-xl sm:text-2xl font-semibold mb-2">Your list, your browser, nobody else.</h2>
-        <p class="text-sm text-white/80">Stored locally on your browser, no account, nothing uploaded.</p>
+        <ul class="border-t border-sand">
+          <li class="grid grid-cols-[3.5rem_1fr] gap-2 border-b border-sand py-5">
+            <span class="mono-label pt-0.5">01</span>
+            <div><p class="font-display font-medium text-ink mb-1">No account</p><p class="text-sm text-muted leading-relaxed">No sign-up, no email.</p></div>
+          </li>
+          <li class="grid grid-cols-[3.5rem_1fr] gap-2 border-b border-sand py-5">
+            <span class="mono-label pt-0.5">02</span>
+            <div><p class="font-display font-medium text-ink mb-1">No server</p><p class="text-sm text-muted leading-relaxed">Listings are stored on this device only. Nothing is uploaded.</p></div>
+          </li>
+          <li class="grid grid-cols-[3.5rem_1fr] gap-2 border-b border-sand py-5">
+            <span class="mono-label pt-0.5">03</span>
+            <div><p class="font-display font-medium text-ink mb-1">Minimal permissions</p><p class="text-sm text-muted leading-relaxed">Acreo only runs on the three property sites it supports.</p></div>
+          </li>
+        </ul>
       </section>
 
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-sand pt-5 pb-2 text-center">
-        <p class="text-xs text-muted">Questions or bugs? <a href="mailto:shaurya12joshi@gmail.com" class="text-teal hover:text-amber font-medium transition-colors">Email us</a>.</p>
-        <a href="https://github.com/Shaurya12joshi/Acreo" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs text-teal hover:text-amber font-medium transition-colors">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-sand/70 pt-6 pb-2 text-center font-mono text-[11px] text-muted">
+        <p>Questions or bugs? <a href="mailto:shaurya12joshi@gmail.com" class="text-teal hover:text-ink transition-colors">Email us</a></p>
+        <a href="https://github.com/Shaurya12joshi/Acreo" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-teal hover:text-ink transition-colors">
           Full guide on GitHub
           <svg class="size-3" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13 13 7M8 7h5v5" /></svg>
         </a>
       </div>
     </div>
 
-    <div id="table-wrapper" class="hidden bg-surface border border-sand rounded-2xl overflow-clip shadow-soft">
+    <!-- ============================== LISTINGS TABLE ============================== -->
+    <div id="table-wrapper" class="hidden bg-surface border border-sand rounded-xl overflow-clip">
       <table class="w-full text-sm border-separate border-spacing-0">
         <thead>
           <tr class="text-left text-muted sticky top-0 z-10">
-            <th class="min-w-56 pl-5 pr-3 py-3 font-semibold text-[11px] uppercase tracking-wider bg-cream border-b border-sand">Title</th>
-            <th class="min-w-32 px-3 py-3 font-semibold text-[11px] uppercase tracking-wider bg-cream border-b border-sand">Price</th>
-            <th class="px-3 py-3 font-semibold text-[11px] uppercase tracking-wider bg-cream border-b border-sand">Area</th>
-            <th class="px-3 py-3 font-semibold text-[11px] uppercase tracking-wider bg-cream border-b border-sand">Price/Area</th>
-            <th class="px-3 py-3 font-semibold text-[11px] uppercase tracking-wider bg-cream border-b border-sand">Type</th>
-            <th class="px-3 py-3 font-semibold text-[11px] uppercase tracking-wider bg-cream border-b border-sand">Source</th>
-            <th class="px-2 py-3 font-semibold text-[11px] uppercase tracking-wider bg-cream border-b border-sand text-center">Link</th>
-            <th class="pl-2 pr-5 py-3 font-semibold text-[11px] uppercase tracking-wider bg-cream border-b border-sand text-right">Details</th>
+            <th class="min-w-56 pl-5 pr-3 py-3 font-mono font-normal text-[10px] uppercase tracking-[0.14em] bg-cream border-b border-sand">Title</th>
+            <th class="min-w-32 px-3 py-3 font-mono font-normal text-[10px] uppercase tracking-[0.14em] bg-cream border-b border-sand">Price</th>
+            <th class="px-3 py-3 font-mono font-normal text-[10px] uppercase tracking-[0.14em] bg-cream border-b border-sand">Area</th>
+            <th class="px-3 py-3 font-mono font-normal text-[10px] uppercase tracking-[0.14em] bg-cream border-b border-sand">Price/Area</th>
+            <th class="px-3 py-3 font-mono font-normal text-[10px] uppercase tracking-[0.14em] bg-cream border-b border-sand">Type</th>
+            <th class="px-3 py-3 font-mono font-normal text-[10px] uppercase tracking-[0.14em] bg-cream border-b border-sand">Source</th>
+            <th class="px-2 py-3 font-mono font-normal text-[10px] uppercase tracking-[0.14em] bg-cream border-b border-sand text-center">Link</th>
+            <th class="pl-2 pr-5 py-3 font-mono font-normal text-[10px] uppercase tracking-[0.14em] bg-cream border-b border-sand text-right">Details</th>
           </tr>
         </thead>
         <tbody id="listings-body"></tbody>
@@ -341,6 +377,7 @@
 
   </main>
 
+  <!-- ============================== DETAILS MODAL ============================== -->
   <div
     id="details-modal"
     class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4"
@@ -348,22 +385,22 @@
   >
     <div
       id="details-modal-backdrop"
-      class="modal-backdrop absolute inset-0 bg-ink/45 backdrop-blur-[2px]"
+      class="modal-backdrop absolute inset-0 bg-ink/40 backdrop-blur-[2px]"
     ></div>
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="details-modal-title"
-      class="modal-panel relative w-full sm:max-w-lg max-h-[85vh] overflow-y-auto overscroll-contain bg-surface border border-sand rounded-t-3xl sm:rounded-2xl shadow-2xl"
+      class="modal-panel relative w-full sm:max-w-lg max-h-[85vh] overflow-y-auto overscroll-contain bg-surface border border-sand rounded-t-2xl sm:rounded-xl"
     >
       <div class="sticky top-0 z-10 bg-surface border-b border-line px-5 pt-3 pb-4 sm:pt-5">
         <div class="mx-auto mb-3 h-1 w-10 rounded-full bg-sand sm:hidden"></div>
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0">
-            <p class="text-[10px] font-semibold uppercase tracking-wider text-teal mb-1">More details</p>
-            <h2 id="details-modal-title" class="font-display text-lg font-semibold text-ink leading-snug">Listing details</h2>
+            <p class="eyebrow mb-1.5">More details</p>
+            <h2 id="details-modal-title" class="font-display text-lg font-medium tracking-[-0.01em] text-ink leading-snug">Listing details</h2>
           </div>
-          <button id="details-modal-close" aria-label="Close" class="shrink-0 grid place-items-center size-8 rounded-full text-muted hover:text-ink hover:bg-cream transition-colors cursor-pointer">
+          <button id="details-modal-close" aria-label="Close" class="shrink-0 grid place-items-center size-8 rounded-md text-muted hover:text-ink hover:bg-cream transition-colors cursor-pointer">
             <svg class="size-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5l10 10M15 5 5 15" /></svg>
           </button>
         </div>
